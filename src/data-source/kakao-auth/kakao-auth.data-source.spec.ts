@@ -2,7 +2,6 @@ import * as AxiosMockAdapter from 'axios-mock-adapter';
 import { HttpService } from '@nestjs/axios';
 import { KakaoAuthDataSource } from './kakao-auth.data-source';
 import { GetTokenResponse, GetUserInfoResponse } from './type/kakao-auth.type';
-import { DataSourceException } from '../data-source.exception';
 
 describe('kakao-auth.data-source', () => {
   let kakaoAuthDataSource: KakaoAuthDataSource;
