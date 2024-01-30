@@ -31,5 +31,6 @@ module.exports = {
     'no-plusplus': 'off',
     'no-await-in-loop': 'off',
     'no-restricted-syntax': 'off',
+    "@typescript-eslint/no-namespace": "off"
   },
 };
