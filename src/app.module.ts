@@ -1,6 +1,7 @@
 import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -8,6 +9,7 @@ import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
       isGlobal: true,
       envFilePath: `environments/.env.${process.env.NODE_ENV || 'prod'}`,
     }),
+    UserModule,
   ],
   controllers: [],
   providers: [
