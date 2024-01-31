@@ -7,7 +7,7 @@ on:
       - master
   pull_request:
     branches:
-      - "**"
+      - '**'
 
 jobs:
   testAndReport:
@@ -22,11 +22,11 @@ jobs:
           version: latest
 
       - name: NodeJS 설정
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ vars.NODE_VERSION }}
-          registry-url: "https://registry.npmjs.org"
-          cache: "pnpm"
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
 
       - name: 의존성 설치
         run: pnpm i
@@ -40,6 +40,6 @@ jobs:
         with:
           name: "테스트 결과 리포트"
           token: ${{ secrets.GITHUB_TOKEN }}
-          path: junit.xml
+          path: reports/jest-*.xml
           reporter: jest-junit
           fail-on-error: 'true'
