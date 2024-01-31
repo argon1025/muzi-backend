@@ -6,10 +6,10 @@ export const JWT_UTILITY_SERVICE = Symbol('JWT_UTILITY_SERVICE');
 export namespace IJwtUtilityService {
   export interface Base {
     /** AccessToken 토큰 생성 */
-    generateAccessToken(payload: TokenPayload): Promise<GenerateTokenResult>;
+    generateAccessToken(payload: TokenPayload): Promise<string>;
 
     /** RefreshToken 토큰 생성 */
-    generateRefreshToken(payload: TokenPayload): Promise<GenerateTokenResult>;
+    generateRefreshToken(payload: TokenPayload): Promise<string>;
 
     /** AccessToken 토큰 복호화 */
     validateAccessToken(token: string): Promise<TokenPayload>;
@@ -27,10 +27,6 @@ export namespace IJwtUtilityService {
   export interface TokenPayload {
     userId: string;
     provider: string;
-  }
-
-  export interface GenerateTokenResult {
-    token: string;
   }
 
   export interface GetCookieOptionResult {

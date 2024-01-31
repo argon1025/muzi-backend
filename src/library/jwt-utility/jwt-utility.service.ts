@@ -50,24 +50,18 @@ export class JwtUtilityService implements IJwtUtilityService.Base {
     };
   }
 
-  async generateAccessToken(payload: IJwtUtilityService.TokenPayload): Promise<IJwtUtilityService.GenerateTokenResult> {
-    return {
-      token: await this.jwtService.signAsync(payload, {
-        secret: this.ACCESS_TOKEN_SECRET_KEY,
-        expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
-      }),
-    };
+  async generateAccessToken(payload: IJwtUtilityService.TokenPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: this.ACCESS_TOKEN_SECRET_KEY,
+      expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
+    });
   }
 
-  async generateRefreshToken(
-    payload: IJwtUtilityService.TokenPayload,
-  ): Promise<IJwtUtilityService.GenerateTokenResult> {
-    return {
-      token: await this.jwtService.signAsync(payload, {
-        secret: this.REFRESH_TOKEN_SECRET_KEY,
-        expiresIn: this.REFRESH_TOKEN_EXPIRES_IN,
-      }),
-    };
+  async generateRefreshToken(payload: IJwtUtilityService.TokenPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      secret: this.REFRESH_TOKEN_SECRET_KEY,
+      expiresIn: this.REFRESH_TOKEN_EXPIRES_IN,
+    });
   }
 
   async validateAccessToken(token: string): Promise<IJwtUtilityService.TokenPayload> {
