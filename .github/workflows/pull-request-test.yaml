@@ -39,7 +39,7 @@ jobs:
         if: success() || failure()
         with:
           name: "테스트 결과 리포트"
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: junit.xml
           reporter: jest-junit
           fail-on-error: 'true'
