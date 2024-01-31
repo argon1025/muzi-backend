@@ -1,0 +1,45 @@
+name: pull_request_test
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - "**"
+
+jobs:
+  testAndReport:
+    runs-on: ubuntu-latest
+    steps:
+      - name : Checkout
+        uses: actions/checkout@v2
+
+      - name: PNPM 사용
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: NodeJS 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ vars.NODE_VERSION }}
+          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
+
+      - name: 의존성 설치
+        run: pnpm i
+
+      - name: 테스트 및 결과 저장
+        run: pnpm run test
+
+      - name: 리포트 생성
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: "테스트 결과 리포트"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: junit.xml
+          reporter: jest-junit
+          fail-on-error: 'true'
