@@ -1,9 +1,8 @@
-import { IUserRepository } from './type/user.repository.interface';
 import { UserRepository } from './user.repository';
 
 describe('UserRepository', () => {
-  const prismaStub = { user: { findUnique: jest.fn(), create: jest.fn() } };
-  let userRepository: UserRepository = new UserRepository(prismaStub as any);
+  const prismaStub = { user: { findFirst: jest.fn() } };
+  let userRepository: UserRepository;
 
   beforeEach(() => {
     userRepository = new UserRepository(prismaStub as any);
@@ -13,7 +12,7 @@ describe('UserRepository', () => {
     jest.clearAllMocks();
   });
 
-  describe('findOne', () => {
+  describe('getUserById', () => {
     it('유저를 찾았을 경우 유저를 반환한다.', async () => {
       // given
       const user = {
@@ -27,10 +26,10 @@ describe('UserRepository', () => {
         updatedAt: new Date(),
         createdAt: new Date(),
       };
-      prismaStub.user.findUnique.mockResolvedValue(user);
+      prismaStub.user.findFirst.mockResolvedValue(user);
 
       // when
-      const result = await userRepository.findOne({ id: user.id, kakaoId: user.kakaoId });
+      const result = await userRepository.getUserById(user.id);
 
       // then
       expect(result).toEqual(user);
@@ -38,33 +37,13 @@ describe('UserRepository', () => {
 
     it('유저를 찾지 못했을 경우 null을 반환한다.', async () => {
       // given
-      prismaStub.user.findUnique.mockResolvedValue(null);
+      prismaStub.user.findFirst.mockResolvedValue(null);
 
       // when
-      const result = await userRepository.findOne({ id: '123123', kakaoId: '123123' });
+      const result = await userRepository.getUserById('1');
 
       // then
       expect(result).toBeNull();
-    });
-  });
-
-  describe('create', () => {
-    it('유저를 생성하고 생성된 유저 정보를 반환한다.', async () => {
-      // given
-      const user: IUserRepository.CreateUserOptions = {
-        provider: 'kakao',
-        kakaoId: '123123',
-        nickname: 'test',
-        email: null,
-        profile: null,
-      };
-      prismaStub.user.create.mockResolvedValue(user);
-
-      // when
-      const result = await userRepository.create(user);
-
-      // then
-      expect(result).toEqual(user);
     });
   });
 });

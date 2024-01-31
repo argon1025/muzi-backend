@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -13,9 +14,13 @@ async function bootstrap() {
     .setTitle('Muzi API')
     .setDescription('무지 백엔드 서비스')
     .setVersion('1.0')
+    .addTag('- 회원')
+    .addTag('- 회원 가입')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, { customSiteTitle: 'Muzi API' });
+
+  app.use(cookieParser());
 
   await app.listen(servicePort);
 }

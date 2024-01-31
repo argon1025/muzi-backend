@@ -14,19 +14,50 @@ export class JwtUtilityService implements IJwtUtilityService.Base {
 
   private readonly REFRESH_TOKEN_EXPIRES_IN = this.configService.getOrThrow<string>('JWT_REFRESH_TOKEN_EXPIRES_IN');
 
+  private readonly IS_HTTP_ONLY_COOKIE = this.configService.getOrThrow<string>('IS_HTTP_ONLY_COOKIE') === 'true';
+
+  private readonly IS_SECURE_COOKIE = this.configService.getOrThrow<string>('IS_SECURE_COOKIE') === 'true';
+
+  private readonly COOKIE_PATH = this.configService.getOrThrow<string>('COOKIE_PATH');
+
+  private readonly COOKIE_DOMAIN = this.configService.getOrThrow<string>('COOKIE_DOMAIN');
+
+  private readonly REFRESH_TOKEN_EXPIRATION_TIME = this.configService.getOrThrow<number>(
+    'REFRESH_TOKEN_EXPIRATION_TIME',
+  );
+
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
 
-  generateAccessToken(payload: IJwtUtilityService.TokenPayload): Promise<string> {
+  getAccessTokenCookieOption(): IJwtUtilityService.GetCookieOptionResult {
+    return {
+      domain: this.COOKIE_DOMAIN,
+      path: this.COOKIE_PATH,
+      httpOnly: this.IS_HTTP_ONLY_COOKIE,
+      secure: this.IS_SECURE_COOKIE,
+    };
+  }
+
+  getRefreshTokenCookieOption(): IJwtUtilityService.GetCookieOptionResult {
+    return {
+      domain: this.COOKIE_DOMAIN,
+      path: this.COOKIE_PATH,
+      httpOnly: this.IS_HTTP_ONLY_COOKIE,
+      secure: this.IS_SECURE_COOKIE,
+      maxAge: this.REFRESH_TOKEN_EXPIRATION_TIME,
+    };
+  }
+
+  async generateAccessToken(payload: IJwtUtilityService.TokenPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
       secret: this.ACCESS_TOKEN_SECRET_KEY,
       expiresIn: this.ACCESS_TOKEN_EXPIRES_IN,
     });
   }
 
-  generateRefreshToken(payload: IJwtUtilityService.TokenPayload): Promise<string> {
+  async generateRefreshToken(payload: IJwtUtilityService.TokenPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
       secret: this.REFRESH_TOKEN_SECRET_KEY,
       expiresIn: this.REFRESH_TOKEN_EXPIRES_IN,

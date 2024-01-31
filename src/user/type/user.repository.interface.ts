@@ -1,14 +1,8 @@
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
-/**
- * 외부객체와 소통하는 UserRepository 인터페이스
- */
+
 export namespace IUserRepository {
-  /**
-   * 추상화된 UserRepository 인터페이스
-   */
   export interface Base {
-    findOne(options: FindOneOptions): Promise<User>;
-    create(options: CreateUserOptions): Promise<User>;
+    getUserById(userId: string): Promise<GetUserByIdResult>;
   }
 
   export interface User {
@@ -29,16 +23,5 @@ export namespace IUserRepository {
     createdAt: Date;
   }
 
-  export interface FindOneOptions {
-    id?: string;
-    kakaoId?: string;
-  }
-
-  export interface CreateUserOptions {
-    provider: 'kakao' | 'email';
-    nickname: string;
-    kakaoId?: string;
-    email?: string;
-    profile?: string;
-  }
+  export type GetUserByIdResult = User;
 }

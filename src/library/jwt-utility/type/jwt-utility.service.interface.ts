@@ -5,21 +5,35 @@ export const JWT_UTILITY_SERVICE = Symbol('JWT_UTILITY_SERVICE');
  */
 export namespace IJwtUtilityService {
   export interface Base {
-    /** Access 토큰 생성 */
+    /** AccessToken 토큰 생성 */
     generateAccessToken(payload: TokenPayload): Promise<string>;
 
-    /** Refresh 토큰 생성 */
+    /** RefreshToken 토큰 생성 */
     generateRefreshToken(payload: TokenPayload): Promise<string>;
 
-    /** Access 토큰 복호화 */
+    /** AccessToken 토큰 복호화 */
     validateAccessToken(token: string): Promise<TokenPayload>;
 
-    /** Refresh 토큰 복호화 */
+    /** RefreshToken 토큰 복호화 */
     validateRefreshToken(token: string): Promise<TokenPayload>;
+
+    /** AccessToken 쿠키옵션 조회 */
+    getAccessTokenCookieOption(): GetCookieOptionResult;
+
+    /** RefreshToken 쿠키옵션 조회 */
+    getRefreshTokenCookieOption(): GetCookieOptionResult;
   }
 
   export interface TokenPayload {
     userId: string;
     provider: string;
+  }
+
+  export interface GetCookieOptionResult {
+    domain: string;
+    path: string;
+    httpOnly: boolean;
+    secure: boolean;
+    maxAge?: number;
   }
 }
