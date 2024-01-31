@@ -16,6 +16,8 @@ JWT_REFRESH_TOKEN_EXPIRES_IN="30d"
 KAKAO_CLIENT_ID="clientKey"
 # 앱 > 보안 > Client Secret
 KAKAO_CLIENT_SECRET="secretKey"
+# 리다이렉트 URL
+KAKAO_REDIRECT_URL="http://localhost:3000/oauth/kakao"
 ```
 
 로컬 환경 : `.env.local`

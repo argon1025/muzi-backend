@@ -1,9 +1,9 @@
-import { IUserRepository } from '../../src/user/type/user.repository.interface';
+import { IAuthRepository } from '../../src/auth/type/auth.repository.interface';
 
-export class UserRepositoryMock implements IUserRepository.Base {
-  private users: IUserRepository.User[] = [];
+export class AuthRepositoryMock implements IAuthRepository.Base {
+  private users: IAuthRepository.User[] = [];
 
-  async findOne(options: IUserRepository.FindOneOptions): Promise<IUserRepository.User> {
+  async findOne(options: IAuthRepository.FindOneOptions): Promise<IAuthRepository.User> {
     return (
       this.users.find((user) => {
         if (user.deletedAt !== null) {
@@ -20,8 +20,8 @@ export class UserRepositoryMock implements IUserRepository.Base {
     );
   }
 
-  async create(options: IUserRepository.CreateUserOptions): Promise<IUserRepository.User> {
-    const user: IUserRepository.User = {
+  async create(options: IAuthRepository.CreateUserOptions): Promise<IAuthRepository.User> {
+    const user: IAuthRepository.User = {
       id: Math.random().toString(36).substring(2, 12),
       provider: options.provider,
       nickname: options.nickname,
@@ -46,14 +46,14 @@ export class UserRepositoryMock implements IUserRepository.Base {
   /**
    * 테스트용 데이터를 초기화한다.
    */
-  init(initData?: IUserRepository.User[]): void {
+  init(initData?: IAuthRepository.User[]): void {
     this.users = initData;
   }
 
   /**
    * 테스트용 데이터를 모두 가져온다.
    */
-  getAllForTest(): IUserRepository.User[] {
+  getAllForTest(): IAuthRepository.User[] {
     return this.users;
   }
 }
