@@ -23,7 +23,7 @@ describe('JwtUtilityService', () => {
       const result = await jwtUtilityService.generateAccessToken(payload);
 
       // then
-      expect(result).toBe('test');
+      expect(result.token).toBe('test');
     });
   });
 
@@ -38,7 +38,7 @@ describe('JwtUtilityService', () => {
       const result = await jwtUtilityService.generateRefreshToken(payload);
 
       // then
-      expect(result).toBe('test');
+      expect(result.token).toBe('test');
     });
   });
 
