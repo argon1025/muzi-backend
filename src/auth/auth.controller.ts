@@ -10,7 +10,7 @@ import { UserInfo } from '../library/jwt-utility/decorator/user-info.decorator';
 import { ERROR_CODE, GenerateSwaggerDocumentByErrorCode } from '../library/exception/error.constant';
 
 @Controller('auth')
-@ApiTags('회원 가입')
+@ApiTags('- 회원 가입')
 export class AuthController {
   private readonly KAKAO_REDIRECT_URL = this.configService.get<string>('KAKAO_REDIRECT_URL');
 

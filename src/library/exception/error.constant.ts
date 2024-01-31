@@ -18,15 +18,31 @@ const dynamicRecord = <T extends { [key in keyof T]: ErrorObject<key> }>(
 ): T & Record<string, ErrorObject<keyof T>> => errorObject;
 
 export const ERROR_CODE = dynamicRecord({
+  /**
+   * 공통
+   */
+  TOKEN_EXPIRED: {
+    code: 'TOKEN_EXPIRED',
+    message: '토큰이 유효하지 않습니다.',
+    httpStatus: HttpStatus.UNAUTHORIZED,
+  },
+
+  /**
+   * Auth
+   */
   GET_KAKAO_TOKEN_FAILED: {
     code: 'GET_KAKAO_TOKEN_FAILED',
     message: '카카오에서 사용자 정보를 로드하는데 실패 했습니다.',
     httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
   },
-  TOKEN_EXPIRED: {
-    code: 'TOKEN_EXPIRED',
-    message: '토큰이 유효하지 않습니다.',
-    httpStatus: HttpStatus.UNAUTHORIZED,
+
+  /**
+   * User
+   */
+  USER_NOT_FOUND: {
+    code: 'USER_NOT_FOUND',
+    message: '존재하지 않는 유저입니다.',
+    httpStatus: HttpStatus.NOT_FOUND,
   },
 });
 
