@@ -5,7 +5,7 @@ export namespace IUserRepository {
     getUserById(userId: string): Promise<GetUserByIdResult>;
   }
 
-  interface User {
+  export interface User {
     id: string;
     /** 가입 유형 */
     provider: string;

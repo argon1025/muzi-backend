@@ -12,10 +12,10 @@ export class RefreshTokenGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request & { user: IJwtUtilityService.TokenPayload }>();
-    const accessToken = this.getRefreshToken(request);
+    const refreshToken = this.getRefreshToken(request);
 
     try {
-      const payload = await this.jwtUtilityService.validateAccessToken(accessToken);
+      const payload = await this.jwtUtilityService.validateRefreshToken(refreshToken);
       request.user = payload;
       return true;
     } catch (error) {

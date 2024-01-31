@@ -127,4 +127,37 @@ describe('JwtUtilityService', () => {
       await expect(result).rejects.toThrow(expectError);
     });
   });
+
+  describe('getAccessTokenCookieOption', () => {
+    it('AccessToken 쿠키옵션을 반환한다.', () => {
+      // given
+      configServiceStub.getOrThrow.mockReturnValue();
+
+      // when
+      const result = jwtUtilityService.getAccessTokenCookieOption();
+
+      // then
+      expect(result).toHaveProperty('domain');
+      expect(result).toHaveProperty('path');
+      expect(result).toHaveProperty('httpOnly');
+      expect(result).toHaveProperty('secure');
+    });
+  });
+
+  describe('getRefreshTokenCookieOption', () => {
+    it('RefreshToken 쿠키옵션을 반환한다.', () => {
+      // given
+      configServiceStub.getOrThrow.mockReturnValue();
+
+      // when
+      const result = jwtUtilityService.getRefreshTokenCookieOption();
+
+      // then
+      expect(result).toHaveProperty('domain');
+      expect(result).toHaveProperty('path');
+      expect(result).toHaveProperty('httpOnly');
+      expect(result).toHaveProperty('secure');
+      expect(result).toHaveProperty('maxAge');
+    });
+  });
 });
