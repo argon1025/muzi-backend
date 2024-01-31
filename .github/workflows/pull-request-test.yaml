@@ -38,6 +38,6 @@ jobs:
         with:
           name: "테스트 결과 리포트"
           token: ${{ secrets.GITHUB_TOKEN }}
-          path: reports/jest-*.xml
+          path: junit.xml
           reporter: jest-junit
           fail-on-error: 'true'
