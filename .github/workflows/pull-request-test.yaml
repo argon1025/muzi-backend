@@ -26,9 +26,6 @@ jobs:
       - name: 의존성 설치
         run: pnpm i
 
-      - name: Prisma Client 생성
-        run: pnpm prisma:generate
-
       - name: 테스트 및 결과 저장
         run: pnpm test:ci
 
