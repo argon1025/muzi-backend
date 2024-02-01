@@ -30,7 +30,7 @@ model User {
   createdAt DateTime  @default(now())
 
   // relation fields
-  UserCampaign UserCampaign[]
+  userCampaignList UserCampaign[]
 }
 
 /// 캠페인 리스트
@@ -47,6 +47,10 @@ model Campaign {
   targetPlatforms  String
   /// 캠페인 유형 (음식, 전자제품)
   category         String
+  /// 캠페인 제목
+  title            String
+  /// 캠페인 썸네일
+  thumbnail        String?
   /// 상세 내용 (캠페인 설명)
   description      String
   /// 캠페인 진행 도시
@@ -64,10 +68,10 @@ model Campaign {
   createdAt        DateTime  @default(now())
 
   // relation fields
-  UserCampaign UserCampaign[]
+  userCampaignList UserCampaign[]
 }
 
-/// 캠페인 북마크
+/// 캠페인 즐겨찾기
 // User >- UserCampaign -< Campaign
 model UserCampaign {
   id         String    @id @default(cuid())
@@ -80,6 +84,6 @@ model UserCampaign {
   createdAt  DateTime  @default(now())
 
   // relation fields
-  User     User     @relation(fields: [userId], references: [id])
-  Campaign Campaign @relation(fields: [campaignId], references: [id])
+  userDetail     User     @relation(fields: [userId], references: [id])
+  campaignDetail Campaign @relation(fields: [campaignId], references: [id])
 }
