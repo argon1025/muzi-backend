@@ -13,9 +13,7 @@ export interface ErrorObject<T> {
   httpStatus: HttpStatus;
 }
 
-const dynamicRecord = <T extends { [key in keyof T]: ErrorObject<key> }>(
-  errorObject: T,
-): T & Record<string, ErrorObject<keyof T>> => errorObject;
+const dynamicRecord = <T extends { [key in keyof T]: ErrorObject<key> }>(errorObject: T): T & Record<string, ErrorObject<keyof T>> => errorObject;
 
 export const ERROR_CODE = dynamicRecord({
   /**
@@ -43,6 +41,30 @@ export const ERROR_CODE = dynamicRecord({
     code: 'USER_NOT_FOUND',
     message: '존재하지 않는 유저입니다.',
     httpStatus: HttpStatus.NOT_FOUND,
+  },
+
+  /**
+   * Campaign
+   */
+  CAMPAIGN_NOT_FOUND: {
+    code: 'CAMPAIGN_NOT_FOUND',
+    message: '존재하지 않는 캠페인입니다.',
+    httpStatus: HttpStatus.NOT_FOUND,
+  },
+  CAMPAIGN_ALREADY_EXIST: {
+    code: 'CAMPAIGN_ALREADY_EXIST',
+    message: '이미 존재하는 캠페인 입니다.',
+    httpStatus: HttpStatus.BAD_REQUEST,
+  },
+  USER_CAMPAIGN_NOT_FOUND: {
+    code: 'USER_CAMPAIGN_NOT_FOUND',
+    message: '존재하지 않는 즐겨찾기입니다.',
+    httpStatus: HttpStatus.NOT_FOUND,
+  },
+  USER_CAMPAIGN_NOT_AUTHORIZED: {
+    code: 'USER_CAMPAIGN_NOT_AUTHORIZED',
+    message: '권한이 없습니다.',
+    httpStatus: HttpStatus.FORBIDDEN,
   },
 });
 
