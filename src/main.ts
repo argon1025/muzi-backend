@@ -16,6 +16,8 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('- 회원')
     .addTag('- 회원 가입')
+    .addTag('- 캠페인')
+    .addCookieAuth('refreshToken', { type: 'apiKey', description: '리프레시 토큰' })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, { customSiteTitle: 'Muzi API' });

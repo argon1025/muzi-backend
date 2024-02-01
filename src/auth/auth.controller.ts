@@ -1,7 +1,7 @@
 import { Controller, Inject, Get, Query, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JWT_UTILITY_SERVICE, IJwtUtilityService } from '../library/jwt-utility/type/jwt-utility.service.interface';
 import { KakaoLoginRequest } from './dto/kakao-login.dto';
 import { AUTH_SERVICE, IAuthService } from './type/auth.service.interface';
@@ -55,6 +55,7 @@ export class AuthController {
   @Get('refresh')
   @UseGuards(RefreshTokenGuard)
   @ApiOperation({ summary: 'AccessToken 재발급', description: 'RefreshToken을 사용하여 AccessToken을 재발급합니다.' })
+  @ApiCookieAuth()
   @GenerateSwaggerDocumentByErrorCode([ERROR_CODE.TOKEN_EXPIRED])
   async refresh(@Res({ passthrough: true }) response: Response, @UserInfo() user: IJwtUtilityService.TokenPayload) {
     const accessToken = await this.jwtService.generateAccessToken({
