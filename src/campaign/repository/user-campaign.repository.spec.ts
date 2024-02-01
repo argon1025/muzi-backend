@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { UserCampaignRepository } from './user-campaign.repository';
 
 describe('UserCampaignRepository', () => {
@@ -99,12 +100,15 @@ describe('UserCampaignRepository', () => {
     it('유저별 즐겨찾기한 캠페인을 삭제한다', async () => {
       // given
       const options = { id: 'id' };
+      const fakeNowTime = DateTime.fromISO('2023-01-01T08:00:00Z'); // utc 기준
+      jest.useFakeTimers();
+      jest.setSystemTime(fakeNowTime.toJSDate());
 
       // when
       await userCampaignRepository.delete(options);
 
       // then
-      expect(prismaServiceStub.userCampaign.update).toHaveBeenCalledWith({ where: { id: options.id }, data: { deletedAt: new Date() } });
+      expect(prismaServiceStub.userCampaign.update).toHaveBeenCalledWith({ where: { id: options.id }, data: { deletedAt: fakeNowTime.toJSDate() } });
     });
   });
 });
