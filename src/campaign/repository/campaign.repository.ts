@@ -21,7 +21,17 @@ export class CampaignRepository implements ICampaignRepository.Base {
       take: size,
       skip: size * (page - 1),
     });
-    const total = await this.prismaService.campaign.count();
+    const total = await this.prismaService.campaign.count({
+      where: {
+        title: {
+          contains: title,
+        },
+        city: {
+          contains: city,
+        },
+        deletedAt: null,
+      },
+    });
 
     return {
       list: list.map((item) => ({
