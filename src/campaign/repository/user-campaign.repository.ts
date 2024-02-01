@@ -65,7 +65,16 @@ export class UserCampaignRepository implements IUserCampaignRepository.Base {
       skip: size * (page - 1),
       take: size,
     });
-    const total = await this.prismaService.userCampaign.count({ where: { userId } });
+    const total = await this.prismaService.userCampaign.count({
+      where: {
+        userId,
+        campaignId,
+        deletedAt: null,
+        campaignDetail: {
+          deletedAt: null,
+        },
+      },
+    });
 
     return {
       list,
