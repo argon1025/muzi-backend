@@ -70,12 +70,13 @@ export class ParsingEventService implements IParsingEventService.Base {
     const existEvent = await this.prismaService.parsingEvent.findFirst({ where: { id: options.eventId } });
     if (!existEvent) throw new ParsingEventException('존재하지 않는 이벤트입니다.', { eventId: options.eventId });
 
+    const isCompleted = options.eventStatus === IParsingEventService.EventStatus.DONE;
     try {
       await this.prismaService.parsingEvent.update({
         where: { id: options.eventId },
         data: {
           eventStatus: options.eventStatus,
-          completedAt: DateTime.utc().toJSDate(),
+          completedAt: isCompleted ? DateTime.utc().toJSDate() : null,
         },
       });
     } catch (error) {
