@@ -137,11 +137,11 @@ describe('ParsingEventService', () => {
       });
 
       // when
-      await parsingEventService.modifyEventStatus({ eventId: event.id, eventStatus: IParsingEventService.EventStatus.DONE });
+      await parsingEventService.modifyEventStatus({ eventId: event.id, eventStatus: IParsingEventService.EventStatus.FAIL });
 
       // then
       const eventResult = await prismaService.parsingEvent.findFirst();
-      expect(eventResult.eventStatus).toBe(IParsingEventService.EventStatus.DONE);
+      expect(eventResult.eventStatus).toBe(IParsingEventService.EventStatus.FAIL);
     });
 
     it('존재하지 않는 이벤트에 대해서는 상태 변경에 실패한다', async () => {
@@ -154,6 +154,22 @@ describe('ParsingEventService', () => {
 
       // then
       await expect(result).rejects.toThrow('존재하지 않는 이벤트입니다.');
+    });
+
+    it('완료 상태로 변경할 경우 완료 시각을 기록한다.', async () => {
+      // given
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventMessage = '테스트';
+      const event = await prismaService.parsingEvent.create({
+        data: { eventType, eventMessage, eventStatus: IParsingEventService.EventStatus.WAIT },
+      });
+
+      // when
+      await parsingEventService.modifyEventStatus({ eventId: event.id, eventStatus: IParsingEventService.EventStatus.DONE });
+
+      // then
+      const eventResult = await prismaService.parsingEvent.findFirst();
+      expect(eventResult.completedAt).not.toBeNull();
     });
   });
 
