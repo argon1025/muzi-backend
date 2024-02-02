@@ -87,3 +87,32 @@ model UserCampaign {
   userDetail     User     @relation(fields: [userId], references: [id])
   campaignDetail Campaign @relation(fields: [campaignId], references: [id])
 }
+
+/// 파싱 이벤트
+model ParsingEvent {
+  id           String    @id @default(cuid())
+  /// 파싱 이벤트 타입
+  eventType    String
+  /// 파싱 이벤트 상태
+  eventStatus  String
+  /// 파싱 이벤트 메시지
+  eventMessage String
+  /// 파싱 작업 완료일
+  completedAt  DateTime?
+  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
+}
+
+/// 파싱 이벤트 로그
+model ParsingEventLog {
+  id        String   @id @default(cuid())
+  /// 파싱 이벤트 아이디
+  eventId   String
+  /// 파싱 이벤트 로그 메시지
+  message   String
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  // relation fields
+  // 로그 테이블은 관계를 맺지 않는다.
+}
