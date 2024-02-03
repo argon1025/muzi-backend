@@ -43,20 +43,20 @@ model Campaign {
   resourceProvider String
   /// 원본 링크
   originUrl        String
-  /// 리뷰 대상 플랫폼 (블로그, 인스타)
-  targetPlatforms  String
-  /// 캠페인 유형 (음식, 전자제품)
-  category         String
   /// 캠페인 제목
   title            String
+  /// 캠페인 유형 (방문, 배송, 기자단, 기타)
+  category         String?
+  /// 리뷰 대상 플랫폼 (블로그, 인스타)
+  targetPlatforms  String?
   /// 캠페인 썸네일
   thumbnail        String?
-  /// 상세 내용 (캠페인 설명)
-  description      String
-  /// 캠페인 진행 도시
-  city             String?
-  /// 캠페인 진행 상세 주소
+  /// 캠페인 방문 주소
   address          String?
+  /// 캠페인 모집 인원
+  recruitCount     Int?
+  /// 캠페인 신청 인원
+  applyCount       Int?
   /// 캠페인 신청 시작일
   startedAt        DateTime?
   /// 캠페인 신청 종료일
