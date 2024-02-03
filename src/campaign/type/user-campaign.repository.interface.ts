@@ -15,6 +15,39 @@ export namespace IUserCampaignRepository {
     delete(options: DeleteOptions): Promise<void>;
   }
 
+  export interface Campaign {
+    id: string;
+    /** 중복 등록 방지 키 */
+    duplicateId: string;
+    /** 리소스 제공자 */
+    resourceProvider: string;
+    /** 원본 링크 */
+    originUrl: string;
+    /** 캠페인 제목 */
+    title: string;
+    /** 캠페인 유형 (방문, 배송, 기자단, 기타) */
+    category?: string;
+    /** 리뷰 대상 플랫폼 (블로그, 인스타) */
+    targetPlatforms?: string;
+    /** 썸네일 URL */
+    thumbnail?: string;
+    /** 주소 상세 */
+    address?: string;
+    /** 캠페인 모집 인원 */
+    recruitCount?: number;
+    /** 캠페인 신청 인원 */
+    applyCount?: number;
+    /** 신청 시작일 */
+    startedAt?: Date;
+    /** 신청 마감일 */
+    endedAt?: Date;
+    /** 당첨자 발표일 */
+    drawAt?: Date;
+    deletedAt?: Date;
+    updatedAt: Date;
+    createdAt: Date;
+  }
+
   export interface FindOneByIdOptions {
     id: string;
   }
@@ -25,30 +58,7 @@ export namespace IUserCampaignRepository {
     /** 유저 id */
     userId: string;
     /** 캠페인 정보 */
-    campaignDetail: {
-      /** 캠페인 아이디  */
-      id: string;
-      /** 리소스 제공자 */
-      resourceProvider: string;
-      /** 리뷰 대상 플랫폼 */
-      targetPlatforms: string;
-      /** 캠페인 유형 */
-      category: string;
-      /** 캠페인 제목 */
-      title: string;
-      /** 썸네일 URL */
-      thumbnail?: string;
-      /** 도시 */
-      city?: string;
-      /** 신청 시작일 */
-      startedAt?: Date;
-      /** 신청 마감일 */
-      endedAt?: Date;
-      /** 당첨자 발표일 */
-      drawAt?: Date;
-      updatedAt: Date;
-      createdAt: Date;
-    };
+    campaignDetail: Campaign;
   }
 
   export interface FindOneByUserIdAndCampaignIdOptions {
@@ -62,30 +72,7 @@ export namespace IUserCampaignRepository {
     /** 유저 id */
     userId: string;
     /** 캠페인 정보 */
-    campaignDetail: {
-      /** 캠페인 아이디  */
-      id: string;
-      /** 리소스 제공자 */
-      resourceProvider: string;
-      /** 리뷰 대상 플랫폼 */
-      targetPlatforms: string;
-      /** 캠페인 유형 */
-      category: string;
-      /** 캠페인 제목 */
-      title: string;
-      /** 썸네일 URL */
-      thumbnail?: string;
-      /** 도시 */
-      city?: string;
-      /** 신청 시작일 */
-      startedAt?: Date;
-      /** 신청 마감일 */
-      endedAt?: Date;
-      /** 당첨자 발표일 */
-      drawAt?: Date;
-      updatedAt: Date;
-      createdAt: Date;
-    };
+    campaignDetail: Campaign;
   }
 
   export interface FindManyOptions {
@@ -101,30 +88,7 @@ export namespace IUserCampaignRepository {
       /** 즐겨찾기 id */
       id: string;
       /** 캠페인 정보 */
-      campaignDetail: {
-        /** 캠페인 아이디  */
-        id: string;
-        /** 리소스 제공자 */
-        resourceProvider: string;
-        /** 리뷰 대상 플랫폼 */
-        targetPlatforms: string;
-        /** 캠페인 유형 */
-        category: string;
-        /** 캠페인 제목 */
-        title: string;
-        /** 썸네일 URL */
-        thumbnail?: string;
-        /** 도시 */
-        city?: string;
-        /** 신청 시작일 */
-        startedAt?: Date;
-        /** 신청 마감일 */
-        endedAt?: Date;
-        /** 당첨자 발표일 */
-        drawAt?: Date;
-        updatedAt: Date;
-        createdAt: Date;
-      };
+      campaignDetail: Campaign;
     }[];
   }
 

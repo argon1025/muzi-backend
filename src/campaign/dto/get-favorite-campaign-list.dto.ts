@@ -29,24 +29,36 @@ class GetFavoriteCampaignDetail {
   resourceProvider: string;
 
   @Expose()
-  @ApiProperty({ description: '리뷰 대상 플랫폼', example: '네이버 블로그' })
-  targetPlatforms: string;
-
-  @Expose()
-  @ApiProperty({ description: '캠페인 유형', example: '음식' })
-  category: string;
+  @ApiProperty({ description: '원본 링크', example: 'https://example.com' })
+  originUrl: string;
 
   @Expose()
   @ApiProperty({ description: '캠페인 제목', example: '맛있는 음식 체험단' })
   title: string;
 
   @Expose()
+  @ApiProperty({ description: '캠페인 유형', example: '방문, 배송, 기자단, 기타' })
+  category?: string;
+
+  @Expose()
+  @ApiProperty({ description: '리뷰 대상 플랫폼', example: '블로그, 인스타' })
+  targetPlatforms?: string;
+
+  @Expose()
   @ApiProperty({ description: '썸네일 URL', example: 'https://example.com/thumbnail.jpg' })
   thumbnail?: string;
 
   @Expose()
-  @ApiProperty({ description: '도시', example: '서울' })
-  city?: string;
+  @ApiProperty({ description: '상세 주소', example: '대구시 북구 국우동' })
+  address?: string;
+
+  @Expose()
+  @ApiProperty({ description: '캠페인 모집 인원', example: 1 })
+  recruitCount?: number;
+
+  @Expose()
+  @ApiProperty({ description: '캠페인 신청 인원', example: 1 })
+  applyCount?: number;
 
   @Expose()
   @ApiProperty({ description: '신청 시작일 ISO8601', example: '2023-01-01T01:01:01.000Z' })
