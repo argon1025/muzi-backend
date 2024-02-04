@@ -37,9 +37,16 @@ COPY --from=builder /build/prisma ./prisma
 # prisma generate
 RUN pnpm run prisma:generate
 
-# 크롤러 동작을 위한 chromium 설치
-RUN sudo amazon-linux-extras install epel -y
-RUN sudo yum install -y chromium
+# puppeteer install
+RUN apk update
+RUN apk upgrade
+RUN apk add --no-cache udev ttf-freefont chromium
+RUN mkdir /usr/share/fonts/nanumfont
+RUN wget http://cdn.naver.com/naver/NanumFont/fontfiles/NanumFont_TTF_ALL.zip
+RUN unzip NanumFont_TTF_ALL.zip -d /usr/share/fonts/nanumfont
+RUN fc-cache -f -v
+ENV LANG=ko_KR.UTF-8
+ENV LANGUAGE=ko_KR.UTF-8
 
 # 앱 실행
 EXPOSE 8080

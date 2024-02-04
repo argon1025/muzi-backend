@@ -28,6 +28,7 @@ jobs:
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> ./environments/.env.prod
           echo 'KAKAO_CLIENT_SECRET="${{ secrets.KAKAO_CLIENT_SECRET }}"' >> ./environments/.env.prod
           echo 'KAKAO_REDIRECT_URL="${{ vars.KAKAO_REDIRECT_URL }}"' >> ./environments/.env.prod
+          echo 'NODE_ENV="prod"' >> ./environments/.env.prod
 
       - name: PNPM 사용
         uses: pnpm/action-setup@v2

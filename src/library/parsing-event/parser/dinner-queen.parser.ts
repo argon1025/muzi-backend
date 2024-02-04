@@ -6,6 +6,7 @@ import * as cheerio from 'cheerio';
 import { DateTime } from 'luxon';
 import { setTimeout } from 'timers/promises';
 
+import { ConfigService } from '@nestjs/config';
 import { ParseEventLogger } from '../../custom-logger/parse-event-logger/parse-event.logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { chunkArray } from '../../utils/chunkArray';
@@ -13,10 +14,13 @@ import { IDinnerQueenParser } from './type/dinner-queen.parser.interface';
 
 @Injectable()
 export class DinnerQueenParser implements IDinnerQueenParser.Base {
+  private readonly NODE_ENV = this.configService.getOrThrow<string>('NODE_ENV');
+
   constructor(
     private readonly httpService: HttpService,
     private readonly prismaService: PrismaService,
     private readonly logger: ParseEventLogger,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -84,7 +88,11 @@ export class DinnerQueenParser implements IDinnerQueenParser.Base {
    * 현재 진행중인 모든 캠페인 리스트를 가져온다
    */
   async getAllIdList(): Promise<IDinnerQueenParser.GetAllIdListResult> {
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--disable-dev-shm-usage', '--no-sandbox', '--disable-setuid-sandbox'],
+      ...(this.NODE_ENV === 'prod' ? { executablePath: '/usr/bin/chromium-browser' } : {}),
+    });
     const page = await browser.newPage();
     const scrollDelay = 300;
     await page.goto('https://dinnerqueen.net/taste', { waitUntil: 'domcontentloaded', timeout: 600000 });
