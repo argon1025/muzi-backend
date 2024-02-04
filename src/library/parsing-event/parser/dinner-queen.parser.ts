@@ -95,14 +95,14 @@ export class DinnerQueenParser implements IDinnerQueenParser.Base {
     });
     const page = await browser.newPage();
     const scrollDelay = 300;
-    await page.goto('https://dinnerqueen.net/taste', { waitUntil: 'domcontentloaded', timeout: 600000 });
+    await page.goto('https://dinnerqueen.net/taste', { waitUntil: 'domcontentloaded', timeout: 1200000 });
 
     let lastHeight = await page.evaluate('document.body.scrollHeight');
     while (true) {
       await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
       // 조건부 대기를 추가하여 실제로 스크롤이 발생했는지 확인
       try {
-        await page.waitForFunction(`document.body.scrollHeight > ${lastHeight}`, { timeout: 10000 });
+        await page.waitForFunction(`document.body.scrollHeight > ${lastHeight}`, { timeout: 1200000 });
       } catch (e) {
         break; // 더 이상 스크롤이 발생하지 않으면 반복문 탈출
       }
