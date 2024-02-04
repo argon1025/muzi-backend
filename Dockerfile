@@ -1,5 +1,5 @@
 # node version v20.0.0
-FROM node:iron-alpine AS Builder
+FROM arm64v8/node:iron-alpine AS Builder
 
 # 작업 디렉터리 생성
 WORKDIR /build
@@ -13,7 +13,7 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm run build
 
 # 서비스 시작
-FROM node:iron-alpine AS APP
+FROM arm64v8/node:iron-alpine AS APP
 
 # NODE_ENV 환경변수 설정
 ARG NODE_ENV
