@@ -14,7 +14,8 @@ jobs:
 
       - name: 프로젝트 환경변수 생성
         run: |
-          echo ${{ secrets.ENV_PROD }} >> ./environments/.env.prod
+          echo ${{ var.TEST_ENV }} >> ./environments/.env.prod
+          cat ./environments/.env.prod
 
       - name: PNPM 사용
         uses: pnpm/action-setup@v2
