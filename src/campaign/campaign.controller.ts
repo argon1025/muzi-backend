@@ -10,6 +10,7 @@ import { IJwtUtilityService } from '../library/jwt-utility/type/jwt-utility.serv
 import { PostFavoriteCampaignRequest } from './dto/post-favorite-campaign.dto';
 import { DeleteFavoriteCampaignRequest } from './dto/delete-favorite-campaign.dto';
 import { ERROR_CODE, GenerateSwaggerDocumentByErrorCode } from '../library/exception/error.constant';
+import { AuthOptional } from '../library/jwt-utility/decorator/auth-optional.decorator';
 
 @Controller('campaign')
 @ApiTags('- 캠페인')
@@ -22,6 +23,7 @@ export class CampaignController {
 
   @Get()
   @ApiOperation({ summary: '캠페인 목록 조회' })
+  @AuthOptional()
   async getCampaignList(@Query() options: GetCampaignListRequest) {
     return plainToInstance(GetCampaignListResponse, await this.campaignService.findMany(options));
   }
