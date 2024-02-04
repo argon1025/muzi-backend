@@ -14,7 +14,7 @@ jobs:
 
       - name: 프로젝트 환경변수 생성
         run: |
-          echo ${{ var.TEST_ENV }} >> ./environments/.env.prod
+          echo ${{ vars.TEST_ENV }} >> ./environments/.env.prod
           cat ./environments/.env.prod
 
       - name: PNPM 사용
