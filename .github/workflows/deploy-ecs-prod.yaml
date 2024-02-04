@@ -1,0 +1,56 @@
+name: deploy_ecr_production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  buildAndDeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 프로젝트 로드
+        uses: actions/checkout@v4
+
+      - name: 프로젝트 환경변수 생성
+        run: |
+          echo ${{ secrets.ENV_PROD }} >> ./environments/.env.prod
+
+      - name: PNPM 사용
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: NodeJS 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: 의존성 설치
+        run: pnpm i
+
+      - name: Prisma Deploy
+        run: pnpm prisma:deploy:prod
+
+      - name: AWS 로그인
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: ECR 로그인
+        id: ecr-login-info
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: 이미지 빌드 및 ECR 푸시
+        id: build-image-info
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login-info.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg NODE_ENV=prod .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
