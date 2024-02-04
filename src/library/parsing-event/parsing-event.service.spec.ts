@@ -26,9 +26,9 @@ describe('ParsingEventService', () => {
   });
 
   describe('createEvent', () => {
-    it('등록하고자 하는 이벤트 타입이 대기, 처리중인 내역이 없을경우 등록할 수 있다.', async () => {
+    it('등록하고자 하는 이벤트가 대기, 처리중인 내역이 없을경우 등록할 수 있다.', async () => {
       // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
       const eventMessage = '테스트';
       // 처리 완료된 이벤트를 한번 등록
       await prismaService.parsingEvent.create({
@@ -46,9 +46,22 @@ describe('ParsingEventService', () => {
       expect((await prismaService.parsingEvent.findMany()).length).toBe(2);
     });
 
+    it('이벤트 타입이 동일한 대기중인 메시지존재 하더라도 메시지가 다를경우 등록할 수 있다.', async () => {
+      // given
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
+      const eventMessage = '테스트';
+      await parsingEventService.createEvent({ eventType, eventMessage });
+
+      // when
+      await parsingEventService.createEvent({ eventType, eventMessage: '다른 메시지' });
+
+      // then
+      expect((await prismaService.parsingEvent.findMany()).length).toBe(2);
+    });
+
     it('등록하고자 하는 이벤트 타입이 이미 대기, 처리중인 경우 추가로 등록할 수 없다', async () => {
       // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
       const eventMessage = '레이스 컨디션 테스트';
 
       // when
@@ -66,9 +79,9 @@ describe('ParsingEventService', () => {
       expect((await prismaService.parsingEvent.findMany()).length).toBe(1);
     });
 
-    it('동일한 타입의 이벤트가 있을 경우 이벤트 생성에 실패한다', async () => {
+    it('동일한 이벤트가 있을 경우 이벤트 생성에 실패한다', async () => {
       // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
       const eventMessage = '테스트';
       await parsingEventService.createEvent({ eventType, eventMessage });
 
@@ -82,11 +95,8 @@ describe('ParsingEventService', () => {
 
   describe('getEvent', () => {
     it('대기중인 이벤트가 없을 경우 null을 반환한다', async () => {
-      // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
-
-      // when
-      const result = await parsingEventService.getEvent({ eventType });
+      // given & when
+      const result = await parsingEventService.getEvent({});
 
       // then
       expect(result).toBeNull();
@@ -94,7 +104,7 @@ describe('ParsingEventService', () => {
 
     it('대기중인 이벤트가 있을 경우 이벤트를 반환하고 상태를 처리중으로 변경한다.', async () => {
       // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
       const eventMessage = '테스트';
       await prismaService.parsingEvent.create({ data: { eventType, eventMessage, eventStatus: IParsingEventService.EventStatus.WAIT } });
 
@@ -109,7 +119,7 @@ describe('ParsingEventService', () => {
     });
     it('동일한 이벤트 중복 응답 방지 검증', async () => {
       // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
       const eventMessage = '테스트';
       await prismaService.parsingEvent.create({ data: { eventType, eventMessage, eventStatus: IParsingEventService.EventStatus.WAIT } });
 
@@ -130,7 +140,7 @@ describe('ParsingEventService', () => {
   describe('modifyEventStatus', () => {
     it('이벤트 상태를 변경할 수 있다.', async () => {
       // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
       const eventMessage = '테스트';
       const event = await prismaService.parsingEvent.create({
         data: { eventType, eventMessage, eventStatus: IParsingEventService.EventStatus.WAIT },
@@ -158,7 +168,7 @@ describe('ParsingEventService', () => {
 
     it('완료 상태로 변경할 경우 완료 시각을 기록한다.', async () => {
       // given
-      const eventType = IParsingEventService.EventType.DINNER_QUEEN_ALL_PAGE;
+      const eventType = IParsingEventService.EventType.DINNER_QUEEN;
       const eventMessage = '테스트';
       const event = await prismaService.parsingEvent.create({
         data: { eventType, eventMessage, eventStatus: IParsingEventService.EventStatus.WAIT },

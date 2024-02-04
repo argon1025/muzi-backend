@@ -16,6 +16,7 @@ export class ParsingEventService implements IParsingEventService.Base {
         const existEvent = await prisma.parsingEvent.findFirst({
           where: {
             eventType: options.eventType,
+            eventMessage: options.eventMessage,
             eventStatus: { in: [IParsingEventService.EventStatus.WAIT, IParsingEventService.EventStatus.PROCESSING] },
           },
         });
@@ -42,9 +43,14 @@ export class ParsingEventService implements IParsingEventService.Base {
   async getEvent(options: IParsingEventService.GetEventOptions): Promise<IParsingEventService.GetEventResult> {
     const getEventResult = await this.prismaService.$transaction(async (prisma) => {
       // 락을 사용하여 현재 대기중인 이벤트를 조회하고 점유
-      const queryResult = await prisma.$queryRaw<ParsingEvent[]>`
+      const queryResult: ParsingEvent[] = options.eventType
+        ? await prisma.$queryRaw<ParsingEvent[]>`
       SELECT * FROM "ParsingEvent" WHERE "eventStatus"  = 'WAIT' AND "eventType" =  ${options.eventType} LIMIT 1 FOR UPDATE
+      `
+        : await prisma.$queryRaw<ParsingEvent[]>`
+      SELECT * FROM "ParsingEvent" WHERE "eventStatus"  = 'WAIT' LIMIT 1 FOR UPDATE
       `;
+
       if (queryResult.length === 0) return null;
       const eventInfo = queryResult.pop();
 
