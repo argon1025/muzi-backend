@@ -8,6 +8,7 @@ import { CampaignModule } from './campaign/campain.module';
 import { ParsingEventModule } from './library/parsing-event/parsing-event.module';
 import { HttpLoggerMiddleware } from './library/middleware/http-logger/http-logger.middleware';
 import { CustomLoggerModule } from './library/custom-logger/custom-logger.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CustomLoggerModule } from './library/custom-logger/custom-logger.module
     ScheduleModule.forRoot(),
     ParsingEventModule,
     CustomLoggerModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [
