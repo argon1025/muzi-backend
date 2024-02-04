@@ -37,6 +37,10 @@ COPY --from=builder /build/prisma ./prisma
 # prisma generate
 RUN pnpm run prisma:generate
 
+# 크롤러 동작을 위한 chromium 설치
+RUN sudo amazon-linux-extras install epel -y
+RUN sudo yum install -y chromium
+
 # 앱 실행
 EXPOSE 8080
 ENTRYPOINT [ "node", "dist/main" ]
