@@ -1,17 +1,18 @@
-import { ConsoleLogger } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { AxiosError } from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
 
 /**
  * 파싱 이벤트 처리기 로거
  */
+@Injectable()
 export class ParseEventLogger extends ConsoleLogger {
   constructor(private readonly prismaService: PrismaService) {
     super();
   }
 
   log(message: string, context?: string, eventId?: string) {
-    console.log(`[${context}] ${message}`, context);
+    console.log(`[${context}] ${message}`);
     if (eventId) {
       this.saveLog(eventId, message);
     }
