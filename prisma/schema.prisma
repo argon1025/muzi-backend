@@ -38,7 +38,7 @@ model User {
 model Campaign {
   id               String    @id @default(cuid())
   /// 중복 검증 아이디
-  duplicateId      String
+  duplicateId      String    @unique
   /// 리소스 제공자
   resourceProvider String
   /// 원본 링크
