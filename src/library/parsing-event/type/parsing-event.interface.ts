@@ -23,7 +23,7 @@ export namespace IParsingEventService {
 
   export interface GetEventOptions {
     /** 이벤트 타입 */
-    eventType: EventType;
+    eventType?: EventType;
   }
 
   export interface GetEventResult {
@@ -63,7 +63,7 @@ export namespace IParsingEventService {
   }
 
   export enum EventType {
-    /** 디너의 여왕 전체 페이지 */
-    DINNER_QUEEN_ALL_PAGE = 'DINNER_QUEEN_ALL_PAGE',
+    /** 디너의 여왕 */
+    DINNER_QUEEN = 'DINNER_QUEEN',
   }
 }
