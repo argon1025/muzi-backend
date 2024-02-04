@@ -1,4 +1,4 @@
-import { ClassSerializerInterceptor, Module, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -6,6 +6,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { CampaignModule } from './campaign/campain.module';
 import { ParsingEventModule } from './library/parsing-event/parsing-event.module';
+import { HttpLoggerMiddleware } from './library/middleware/http-logger/http-logger.middleware';
+import { CustomLoggerModule } from './library/custom-logger/custom-logger.module';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { ParsingEventModule } from './library/parsing-event/parsing-event.module
     CampaignModule,
     ScheduleModule.forRoot(),
     ParsingEventModule,
+    CustomLoggerModule,
   ],
   controllers: [],
   providers: [
@@ -34,4 +37,8 @@ import { ParsingEventModule } from './library/parsing-event/parsing-event.module
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}

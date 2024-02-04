@@ -3,9 +3,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { HttpLogger } from './library/custom-logger/http-logger/http.logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const configService = app.get<ConfigService>(ConfigService);
 
   const servicePort = configService.getOrThrow<number>('SERVICE_PORT');
@@ -23,6 +24,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document, { customSiteTitle: 'Muzi API' });
 
   app.use(cookieParser());
+  app.useLogger(app.get(HttpLogger));
 
   await app.listen(servicePort);
 }
