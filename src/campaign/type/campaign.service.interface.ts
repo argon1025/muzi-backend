@@ -53,6 +53,10 @@ export namespace ICampaignService {
     title?: string;
     /** 주소 */
     address?: string;
+    /** 카테고리 */
+    category?: string;
+    /** 응모 가능한 캠페인만 검색 */
+    hasAvailable?: boolean;
     size: number;
     page: number;
   }

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class GetCampaignListRequest {
   @IsString()
@@ -13,7 +13,19 @@ export class GetCampaignListRequest {
   @IsNotEmpty()
   @IsOptional()
   @ApiProperty({ description: '도시 검색', example: '서울' })
-  city?: string;
+  address?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  @ApiProperty({ description: '카테고리 검색', example: '방문, 배송, 기자단, 기타' })
+  category?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  @ApiProperty({ description: '응모 가능한 캠페인만 조회', type: 'boolean' })
+  @Transform(({ value }) => value === 'true')
+  hasAvailable?: boolean;
 
   @IsNumber()
   @IsOptional()
