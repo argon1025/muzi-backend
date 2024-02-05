@@ -19,7 +19,7 @@ export class ParsingEventWorkerBatch {
   /**
    * 5시간 주기로 파싱 이벤트 생성
    */
-  @Cron(CronExpression.EVERY_5_HOURS)
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'Asia/Seoul' })
   async parseRequestWorker() {
     // SECTION: 이벤트 생성
     await this.parsingEventService.createEvent({
