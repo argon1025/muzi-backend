@@ -95,7 +95,8 @@ export class DinnerQueenParser implements IDinnerQueenParser.Base {
     });
     const page = await browser.newPage();
     const scrollDelay = 300;
-    await page.goto('https://dinnerqueen.net/taste', { waitUntil: 'domcontentloaded', timeout: 1200000 });
+    const status = await page.goto('https://dinnerqueen.net/taste', { waitUntil: 'domcontentloaded', timeout: 1200000 });
+    this.logger.log(`페이지 로딩 상태 ${status.status()}`, 'getAllIdList');
 
     let lastHeight = await page.evaluate('document.body.scrollHeight');
     while (true) {
