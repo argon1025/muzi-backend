@@ -1,19 +1,15 @@
 import { Injectable, Inject, Logger, InternalServerErrorException } from '@nestjs/common';
-import {
-  KAKAO_AUTH_DATA_SOURCE,
-  IKakaoAuthDataSource,
-} from '../data-source/kakao-auth/type/kakao-auth.data-source.interface';
+import { KAKAO_AUTH_DATA_SOURCE, IKakaoAuthDataSource } from '../data-source/kakao-auth/type/kakao-auth.data-source.interface';
 import { ERROR_CODE } from '../library/exception/error.constant';
-import { AUTH_REPOSITORY, IAuthRepository } from './type/auth.repository.interface';
 import { IAuthService } from './type/auth.service.interface';
+import { PrismaService } from '../library/prisma/prisma.service';
 
 @Injectable()
 export class AuthService implements IAuthService.Base {
   constructor(
-    @Inject(AUTH_REPOSITORY)
-    private readonly userRepository: IAuthRepository.Base,
     @Inject(KAKAO_AUTH_DATA_SOURCE)
     private readonly kakaoAuthDataSource: IKakaoAuthDataSource.Base,
+    private readonly prismaService: PrismaService,
   ) {}
 
   async loginForKakao(options: IAuthService.LoginForKakaoOptions): Promise<IAuthService.LoginForKakaoResult> {
@@ -31,16 +27,20 @@ export class AuthService implements IAuthService.Base {
     }
 
     // 카카오 유저 정보를 바탕으로 유저를 찾거나 생성한다.
-    let user: IAuthRepository.User = await this.userRepository.findOne({
-      kakaoId: kakaoUserInfo.id.toString(),
+    let user = await this.prismaService.user.findFirst({
+      where: {
+        kakaoId: kakaoUserInfo.id.toString(),
+      },
     });
     if (!user) {
-      user = await this.userRepository.create({
-        provider: 'kakao',
-        nickname: kakaoUserInfo.name,
-        kakaoId: kakaoUserInfo.id.toString(),
-        email: kakaoUserInfo.email,
-        profile: kakaoUserInfo.profileImage,
+      user = await this.prismaService.user.create({
+        data: {
+          provider: 'kakao',
+          nickname: kakaoUserInfo.name,
+          kakaoId: kakaoUserInfo.id.toString(),
+          email: kakaoUserInfo.email,
+          profile: kakaoUserInfo.profileImage,
+        },
       });
     }
 

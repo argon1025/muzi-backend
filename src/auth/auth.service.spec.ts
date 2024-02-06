@@ -1,21 +1,25 @@
 import { Logger, InternalServerErrorException } from '@nestjs/common';
-import { AuthRepositoryMock } from '../../test/utils/auth.repository.mock';
 import { IKakaoAuthDataSource } from '../data-source/kakao-auth/type/kakao-auth.data-source.interface';
 import { ERROR_CODE } from '../library/exception/error.constant';
 import { AuthService } from './auth.service';
+import { PrismaService } from '../library/prisma/prisma.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
-  const authRepository = new AuthRepositoryMock();
+  const prismaService = new PrismaService();
   const kakaoAuthDataSource = {} as any;
 
   beforeEach(() => {
-    authService = new AuthService(authRepository, kakaoAuthDataSource);
+    authService = new AuthService(kakaoAuthDataSource, prismaService);
   });
 
-  afterEach(() => {
-    authRepository.clear();
+  afterEach(async () => {
+    await prismaService.$transaction([prismaService.user.deleteMany()]);
     jest.restoreAllMocks();
+  });
+
+  afterAll(async () => {
+    await prismaService.$disconnect();
   });
 
   describe('loginForKakao', () => {
@@ -52,14 +56,12 @@ describe('AuthService', () => {
           createdAt: new Date(),
         },
       ];
-      authRepository.init(dataBaseData);
-      jest.spyOn(authRepository, 'create').mockResolvedValue({} as any);
+      prismaService.user.createMany({ data: dataBaseData });
       // when
       const result = await authService.loginForKakao({ code: 'code', redirectUri: 'redirectUri' });
 
       // then
-      expect(result).toEqual(dataBaseData[0]);
-      expect(authRepository.create).toHaveBeenCalledTimes(0);
+      expect(result.kakaoId).toEqual('1');
     });
 
     it('유저 정보를 찾지 못했을 경우 새로 가입처리 후 유저정보를 반환한다.', async () => {
@@ -79,7 +81,6 @@ describe('AuthService', () => {
 
       // then
       expect(result.kakaoId).toBe('1');
-      expect(authRepository.getAllForTest()).toHaveLength(1);
     });
 
     it('인가코드로부터 액세스 토큰을 받아오는데 실패했을 경우 에러를 던진다.', async () => {
