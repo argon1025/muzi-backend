@@ -1,8 +1,9 @@
-import { Logger, InternalServerErrorException } from '@nestjs/common';
+import { Logger, InternalServerErrorException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { IKakaoAuthDataSource } from '../data-source/kakao-auth/type/kakao-auth.data-source.interface';
 import { ERROR_CODE } from '../library/exception/error.constant';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../library/prisma/prisma.service';
+import { UserProvider } from './type/auth.type';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -105,6 +106,123 @@ describe('AuthService', () => {
 
       // then
       await expect(result).rejects.toEqual(new InternalServerErrorException(ERROR_CODE.GET_KAKAO_TOKEN_FAILED));
+    });
+  });
+
+  describe('joinForUserId', () => {
+    it('동일한 아이디로 가입된 유저가 없을 경우 가입처리를 한다.', async () => {
+      // given & when
+      await authService.joinForUserId({
+        userId: 'userId',
+        password: 'password',
+        nickname: 'test',
+      });
+
+      // then
+      const userList = await prismaService.user.findMany();
+      expect(userList.length).toBe(1);
+      expect(userList.pop().userId).toBe('userId');
+    });
+    it('동일한 아이디로 가입된 유저가 있을 경우 에러를 던진다.', async () => {
+      // given
+      await prismaService.user.create({
+        data: {
+          provider: UserProvider.USER_ID,
+          userId: 'userId',
+          password: 'password',
+          nickname: 'test',
+          email: null,
+          deletedAt: null,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+
+      // when
+      const result = authService.joinForUserId({
+        userId: 'userId',
+        password: 'password',
+        nickname: 'test',
+      });
+
+      // then
+      await expect(result).rejects.toThrow(new BadRequestException(ERROR_CODE.USER_ALREADY_EXIST));
+      const userList = await prismaService.user.findMany();
+      expect(userList.length).toBe(1);
+    });
+    it('탈퇴한 유저 아이디로 가입 요청이 들어왔을 경우 가입처리를 한다.', async () => {
+      // given
+      await prismaService.user.create({
+        data: {
+          provider: UserProvider.USER_ID,
+          userId: 'userId',
+          password: 'password',
+          nickname: 'test',
+          email: null,
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+
+      // when
+      await authService.joinForUserId({
+        userId: 'userId',
+        password: 'password',
+        nickname: 'test',
+      });
+
+      // then
+      const userList = await prismaService.user.findMany();
+      expect(userList.length).toBe(2);
+      expect(userList.pop().userId).toBe('userId');
+    });
+  });
+
+  describe('loginForUserId', () => {
+    it('로그인에 성공 했을 경우 유저 정보를 반환한다', async () => {
+      // given
+      await authService.joinForUserId({
+        userId: 'userId',
+        password: 'password',
+        nickname: 'test',
+      });
+
+      // when
+      const result = await authService.loginForUserId({
+        userId: 'userId',
+        password: 'password',
+      });
+
+      // then
+      expect(result.userId).toBe('userId');
+    });
+    it('유저를 찾지 못했을 경우 에러를 던진다.', async () => {
+      // given & when
+      const result = authService.loginForUserId({
+        userId: 'userId',
+        password: 'WongPassword',
+      });
+
+      // then
+      await expect(result).rejects.toThrow(new NotFoundException(ERROR_CODE.USER_NOT_FOUND));
+    });
+    it('비밀번호가 일치하지 않을 경우 에러를 던진다.', async () => {
+      // given
+      await authService.joinForUserId({
+        userId: 'userId',
+        password: 'password',
+        nickname: 'test',
+      });
+
+      // when
+      const result = authService.loginForUserId({
+        userId: 'userId',
+        password: 'WongPassword',
+      });
+
+      // then
+      await expect(result).rejects.toThrow(new NotFoundException(ERROR_CODE.USER_NOT_FOUND));
     });
   });
 });
