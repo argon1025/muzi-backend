@@ -1,8 +1,10 @@
-import { Injectable, Inject, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Inject, Logger, InternalServerErrorException, BadRequestException, NotFoundException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { KAKAO_AUTH_DATA_SOURCE, IKakaoAuthDataSource } from '../data-source/kakao-auth/type/kakao-auth.data-source.interface';
 import { ERROR_CODE } from '../library/exception/error.constant';
 import { IAuthService } from './type/auth.service.interface';
 import { PrismaService } from '../library/prisma/prisma.service';
+import { UserProvider } from './type/auth.type';
 
 @Injectable()
 export class AuthService implements IAuthService.Base {
@@ -35,7 +37,7 @@ export class AuthService implements IAuthService.Base {
     if (!user) {
       user = await this.prismaService.user.create({
         data: {
-          provider: 'kakao',
+          provider: UserProvider.KAKAO,
           nickname: kakaoUserInfo.name,
           kakaoId: kakaoUserInfo.id.toString(),
           email: kakaoUserInfo.email,
@@ -46,5 +48,42 @@ export class AuthService implements IAuthService.Base {
 
     // 유저 정보를 반환한다
     return user;
+  }
+
+  async joinForUserId(options: IAuthService.JoinForUserIdOptions): Promise<void> {
+    const { userId, password, nickname, email, profile } = options;
+    // 동일한 아이디로 가입된 유저가 있는지 확인한다.
+    const hasJoined = await this.prismaService.user.findFirst({ where: { userId, deletedAt: null } });
+    if (hasJoined) {
+      throw new BadRequestException(ERROR_CODE.USER_ALREADY_EXIST);
+    }
+
+    // 유저를 생성한다.
+    await this.prismaService.user.create({
+      data: {
+        provider: UserProvider.USER_ID,
+        userId,
+        password: bcrypt.hashSync(password, 10),
+        nickname,
+        email,
+        profile,
+      },
+    });
+  }
+
+  async loginForUserId(options: IAuthService.LoginForUserIdOptions): Promise<IAuthService.LoginForUserIdResult> {
+    const { userId, password } = options;
+    // 아이디로 유저를 조회한다.
+    const userInfo = await this.prismaService.user.findFirst({ where: { userId } });
+    if (!userInfo) {
+      throw new NotFoundException(ERROR_CODE.USER_NOT_FOUND);
+    }
+
+    // 비밀번호를 확인한다.
+    const isPasswordMatch = bcrypt.compareSync(password, userInfo.password);
+    if (!isPasswordMatch) {
+      throw new NotFoundException(ERROR_CODE.USER_NOT_FOUND);
+    }
+    return userInfo;
   }
 }

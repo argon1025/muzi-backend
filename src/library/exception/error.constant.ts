@@ -42,6 +42,11 @@ export const ERROR_CODE = dynamicRecord({
     message: '존재하지 않는 유저입니다.',
     httpStatus: HttpStatus.NOT_FOUND,
   },
+  USER_ALREADY_EXIST: {
+    code: 'USER_ALREADY_EXIST',
+    message: '이미 존재하는 유저 입니다.',
+    httpStatus: HttpStatus.BAD_REQUEST,
+  },
 
   /**
    * Campaign
