@@ -170,11 +170,11 @@ export class DinnerQueenParser implements IDinnerQueenParser.Base {
 
     return {
       // 응모 시작일
-      startedAt: DateTime.fromFormat(campaignDates[0].trim(), 'yy.MM.dd').toJSDate(),
+      startedAt: DateTime.fromFormat(campaignDates[0].trim(), 'yy.MM.dd').minus({ hours: 9 }).toJSDate(),
       // 응모 종료일
-      endedAt: DateTime.fromFormat(campaignDates[1].trim(), 'yy.MM.dd').toJSDate(),
+      endedAt: DateTime.fromFormat(campaignDates[1].trim(), 'yy.MM.dd').minus({ hours: 9 }).toJSDate(),
       // 추첨일
-      drawAt: DateTime.fromFormat(drawDateString, 'yy.MM.dd').toJSDate(),
+      drawAt: DateTime.fromFormat(drawDateString, 'yy.MM.dd').minus({ hours: 9 }).toJSDate(),
     };
   }
 
