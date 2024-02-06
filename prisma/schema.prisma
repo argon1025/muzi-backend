@@ -17,6 +17,10 @@ model User {
   id        String    @id @default(cuid())
   /// 가입 유형
   provider  String
+  /// userId 아이디 가입인 경우에만 필수
+  userId    String?
+  /// userId 아이디 가입인 경우에만 필수
+  password  String?
   /// 카카오 키
   kakaoId   String?
   /// 별명
@@ -31,6 +35,9 @@ model User {
 
   // relation fields
   userCampaignList UserCampaign[]
+  /// unique index
+  /// 조건부 인덱스 - 삭제되지 않은 UserId가 존재할 경우 유니크 인덱스 생성
+  /// 조건부 인덱스 - 삭제되지 않은 kakaoId가 존재할 경우 유니크 인덱스 생성
 }
 
 /// 캠페인 리스트
