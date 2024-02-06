@@ -74,7 +74,7 @@ export class AuthService implements IAuthService.Base {
   async loginForUserId(options: IAuthService.LoginForUserIdOptions): Promise<IAuthService.LoginForUserIdResult> {
     const { userId, password } = options;
     // 아이디로 유저를 조회한다.
-    const userInfo = await this.prismaService.user.findFirst({ where: { userId } });
+    const userInfo = await this.prismaService.user.findFirst({ where: { userId, deletedAt: null } });
     if (!userInfo) {
       throw new NotFoundException(ERROR_CODE.USER_NOT_FOUND);
     }

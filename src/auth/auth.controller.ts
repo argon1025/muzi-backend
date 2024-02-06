@@ -1,13 +1,17 @@
-import { Controller, Inject, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Inject, Get, Query, Res, UseGuards, Post, Body } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { plainToClass } from 'class-transformer';
 import { JWT_UTILITY_SERVICE, IJwtUtilityService } from '../library/jwt-utility/type/jwt-utility.service.interface';
 import { KakaoLoginRequest } from './dto/kakao-login.dto';
 import { AUTH_SERVICE, IAuthService } from './type/auth.service.interface';
 import { RefreshTokenGuard } from '../library/jwt-utility/guard/refresh-token.guard';
 import { UserInfo } from '../library/jwt-utility/decorator/user-info.decorator';
 import { ERROR_CODE, GenerateSwaggerDocumentByErrorCode } from '../library/exception/error.constant';
+import { PostJoinWithUserIdRequest, PostJoinWithUserIdResponse } from './dto/post-join-with-user-id.dto';
+import { UserLoginRequest, UserLoginResponse } from './dto/user-login.dto';
+import { UserProvider } from './type/auth.type';
 
 @Controller('auth')
 @ApiTags('- 회원 가입')
@@ -22,6 +26,35 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Post('userId/join')
+  @ApiOperation({ summary: '유저 아이디 가입', description: '유저 아이디를 사용하여 가입합니다.' })
+  @GenerateSwaggerDocumentByErrorCode([ERROR_CODE.USER_ALREADY_EXIST])
+  async joinForUserId(@Body() request: PostJoinWithUserIdRequest) {
+    await this.authService.joinForUserId(request);
+    return plainToClass(PostJoinWithUserIdResponse, { success: true });
+  }
+
+  @Post('userId/login')
+  @ApiOperation({ summary: '유저 아이디 로그인', description: '유저 아이디를 사용하여 로그인합니다.' })
+  @GenerateSwaggerDocumentByErrorCode([ERROR_CODE.USER_NOT_FOUND])
+  async loginForUserId(@Body() { userId, password }: UserLoginRequest, @Res({ passthrough: true }) response: Response) {
+    // 유저정보 조회
+    const userInfo = await this.authService.loginForUserId({ userId, password });
+
+    // accessToken, refreshToken 토큰 발급
+    const accessToken = await this.jwtService.generateAccessToken({
+      userId: userInfo.id,
+      provider: UserProvider.USER_ID,
+    });
+    const refreshToken = await this.jwtService.generateRefreshToken({
+      userId: userInfo.id,
+      provider: UserProvider.USER_ID,
+    });
+    response.cookie('accessToken', accessToken, this.jwtService.getAccessTokenCookieOption());
+    response.cookie('refreshToken', refreshToken, this.jwtService.getRefreshTokenCookieOption());
+    return plainToClass(UserLoginResponse, { success: true });
+  }
+
   @Get('kakao')
   @ApiOperation({ summary: '카카오 로그인', description: '카카오 로그인을 진행합니다.' })
   @GenerateSwaggerDocumentByErrorCode([ERROR_CODE.GET_KAKAO_TOKEN_FAILED])
@@ -35,12 +68,12 @@ export class AuthController {
     // accessToken, refreshToken 토큰 발급
     const accessToken = await this.jwtService.generateAccessToken({
       userId: userInfo.id,
-      provider: 'kakao',
+      provider: UserProvider.KAKAO,
     });
     response.cookie('accessToken', accessToken, this.jwtService.getAccessTokenCookieOption());
     const refreshToken = await this.jwtService.generateRefreshToken({
       userId: userInfo.id,
-      provider: 'kakao',
+      provider: UserProvider.KAKAO,
     });
     response.cookie('refreshToken', refreshToken, this.jwtService.getRefreshTokenCookieOption());
   }
