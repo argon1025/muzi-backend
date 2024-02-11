@@ -1,18 +1,18 @@
 import { NotFoundException } from '@nestjs/common';
-import { UserRepositoryMock } from '../../test/utils/user.repository.mock';
 import { UserService } from './user.service';
 import { ERROR_CODE } from '../library/exception/error.constant';
+import { PrismaService } from '../library/prisma/prisma.service';
 
 describe('UserService', () => {
-  const userRepository = new UserRepositoryMock();
+  const prismaService = new PrismaService();
   let userService: UserService;
 
   beforeEach(() => {
-    userService = new UserService(userRepository);
+    userService = new UserService(prismaService);
   });
 
-  afterEach(() => {
-    userRepository.clear();
+  afterEach(async () => {
+    await prismaService.$transaction([prismaService.user.deleteMany()]);
     jest.restoreAllMocks();
   });
 
@@ -21,7 +21,7 @@ describe('UserService', () => {
       // given
       const dataBaseData = [
         {
-          id: 'j2h31jhk1',
+          id: 'user1',
           provider: 'kakao',
           kakaoId: '123123123',
           nickname: 'test',
@@ -31,13 +31,13 @@ describe('UserService', () => {
           createdAt: new Date(),
         },
       ];
-      userRepository.init(dataBaseData);
+      await prismaService.user.createMany({ data: dataBaseData });
 
       // when
-      const result = await userService.getUserById('j2h31jhk1');
+      const result = await userService.getUserById('user1');
 
       // then
-      expect(result).toEqual(dataBaseData[0]);
+      expect(result.id).toEqual('user1');
     });
 
     it('유저를 찾지 못했을 경우 NotFoundException을 반환한다.', async () => {
@@ -47,6 +47,61 @@ describe('UserService', () => {
       // then
       const expectedError = new NotFoundException(ERROR_CODE.USER_NOT_FOUND);
       expect(result).rejects.toThrow(expectedError);
+    });
+  });
+
+  describe('deleteUserById', () => {
+    it('유저를 정상적으로 삭제한 경우.', async () => {
+      // given
+      const dataBaseData = [
+        {
+          id: 'user1',
+          provider: 'kakao',
+          kakaoId: '123123123',
+          nickname: 'test',
+          email: null,
+          deletedAt: null,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      ];
+      await prismaService.user.createMany({ data: dataBaseData });
+
+      // when
+      const result = await userService.deleteUserById({ userId: 'user1' });
+
+      // then
+      expect(result).toBeUndefined();
+    });
+
+    it('이미 삭제된 유저를 삭제하려고 시도한 경우 NotFoundException을 반환한다.', async () => {
+      // given
+      const dataBaseData = [
+        {
+          id: 'user1',
+          provider: 'kakao',
+          kakaoId: '123123123',
+          nickname: 'test',
+          email: null,
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      ];
+      await prismaService.user.createMany({ data: dataBaseData });
+
+      // when
+      const result = userService.deleteUserById({ userId: 'user1' });
+
+      // then
+      await expect(result).rejects.toThrow(new NotFoundException(ERROR_CODE.USER_NOT_FOUND));
+    });
+    it('유저를 찾지 못했을 경우 NotFoundException을 반환한다.', async () => {
+      // given & when
+      const result = userService.deleteUserById({ userId: 'user1' });
+
+      // then
+      await expect(result).rejects.toThrow(new NotFoundException(ERROR_CODE.USER_NOT_FOUND));
     });
   });
 });

@@ -6,6 +6,7 @@ export const USER_SERVICE = Symbol('USER_SERVICE');
 export namespace IUserService {
   export interface Base {
     getUserById(userId: string): Promise<GetUserByIdResult>;
+    deleteUserById(options: DeleteUserByIdOptions): Promise<void>;
   }
 
   interface User {
@@ -27,4 +28,8 @@ export namespace IUserService {
   }
 
   export type GetUserByIdResult = User;
+
+  export interface DeleteUserByIdOptions {
+    userId: string;
+  }
 }
