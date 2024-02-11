@@ -29,18 +29,18 @@ describe('ParsingEventService', () => {
     it('등록하고자 하는 이벤트가 대기, 처리중인 내역이 없을경우 등록할 수 있다.', async () => {
       // given
       const eventType = IParsingEventService.EventType.DINNER_QUEEN;
-      const eventMessage = '테스트';
+      const eventMessage = { requestType: 'ALL' };
       // 처리 완료된 이벤트를 한번 등록
       await prismaService.parsingEvent.create({
         data: {
           eventType,
-          eventMessage,
+          eventMessage: JSON.stringify(eventMessage),
           eventStatus: IParsingEventService.EventStatus.DONE,
         },
       });
 
       // when
-      await parsingEventService.createEvent({ eventType, eventMessage });
+      await parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } });
 
       // then
       expect((await prismaService.parsingEvent.findMany()).length).toBe(2);
@@ -49,11 +49,10 @@ describe('ParsingEventService', () => {
     it('이벤트 타입이 동일한 대기중인 메시지존재 하더라도 메시지가 다를경우 등록할 수 있다.', async () => {
       // given
       const eventType = IParsingEventService.EventType.DINNER_QUEEN;
-      const eventMessage = '테스트';
-      await parsingEventService.createEvent({ eventType, eventMessage });
+      await parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } });
 
       // when
-      await parsingEventService.createEvent({ eventType, eventMessage: '다른 메시지' });
+      await parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'UPDATE', targetId: '1' } });
 
       // then
       expect((await prismaService.parsingEvent.findMany()).length).toBe(2);
@@ -62,16 +61,15 @@ describe('ParsingEventService', () => {
     it('등록하고자 하는 이벤트 타입이 이미 대기, 처리중인 경우 추가로 등록할 수 없다', async () => {
       // given
       const eventType = IParsingEventService.EventType.DINNER_QUEEN;
-      const eventMessage = '레이스 컨디션 테스트';
 
       // when
       // 정확한 테스트를 위해서는 createEvent select 이후 대기시간을 두어야 한다.
       await Promise.allSettled([
-        parsingEventService.createEvent({ eventType, eventMessage }),
-        parsingEventService.createEvent({ eventType, eventMessage }),
-        parsingEventService.createEvent({ eventType, eventMessage }),
-        parsingEventService.createEvent({ eventType, eventMessage }),
-        parsingEventService.createEvent({ eventType, eventMessage }),
+        parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } }),
+        parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } }),
+        parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } }),
+        parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } }),
+        parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } }),
       ]);
 
       // then
@@ -82,11 +80,10 @@ describe('ParsingEventService', () => {
     it('동일한 이벤트가 있을 경우 이벤트 생성에 실패한다', async () => {
       // given
       const eventType = IParsingEventService.EventType.DINNER_QUEEN;
-      const eventMessage = '테스트';
-      await parsingEventService.createEvent({ eventType, eventMessage });
+      await parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } });
 
       // when
-      const result = parsingEventService.createEvent({ eventType, eventMessage });
+      const result = parsingEventService.createEvent({ eventType, eventMessage: { requestType: 'ALL' } });
 
       // then
       await expect(result).rejects.toThrow('이미 처리중인 이벤트가 존재합니다.');
@@ -105,8 +102,10 @@ describe('ParsingEventService', () => {
     it('대기중인 이벤트가 있을 경우 이벤트를 반환하고 상태를 처리중으로 변경한다.', async () => {
       // given
       const eventType = IParsingEventService.EventType.DINNER_QUEEN;
-      const eventMessage = '테스트';
-      await prismaService.parsingEvent.create({ data: { eventType, eventMessage, eventStatus: IParsingEventService.EventStatus.WAIT } });
+
+      await prismaService.parsingEvent.create({
+        data: { eventType, eventMessage: JSON.stringify({}), eventStatus: IParsingEventService.EventStatus.WAIT },
+      });
 
       // when
       const result = await parsingEventService.getEvent({ eventType });
@@ -120,8 +119,9 @@ describe('ParsingEventService', () => {
     it('동일한 이벤트 중복 응답 방지 검증', async () => {
       // given
       const eventType = IParsingEventService.EventType.DINNER_QUEEN;
-      const eventMessage = '테스트';
-      await prismaService.parsingEvent.create({ data: { eventType, eventMessage, eventStatus: IParsingEventService.EventStatus.WAIT } });
+      await prismaService.parsingEvent.create({
+        data: { eventType, eventMessage: JSON.stringify({}), eventStatus: IParsingEventService.EventStatus.WAIT },
+      });
 
       // when
       const result = await Promise.all([
@@ -191,6 +191,24 @@ describe('ParsingEventService', () => {
       // then
       const eventLogResult = await prismaService.parsingEventLog.findFirst();
       expect(eventLogResult.eventId).toBe('eventId');
+    });
+  });
+
+  describe('getEventTypeFromText', () => {
+    it('문자열을 이벤트 타입으로 변환할 수 있다.', () => {
+      // given & when
+      const result = parsingEventService.getEventTypeFromText('DINNER_QUEEN');
+
+      // then
+      expect(result).toBe(IParsingEventService.EventType.DINNER_QUEEN);
+    });
+
+    it('존재하지 않는 이벤트 타입일 경우 에러를 반환한다.', () => {
+      // given & when
+      const result = () => parsingEventService.getEventTypeFromText('이상한 이벤트 타입');
+
+      // then
+      expect(result).toThrow('존재하지 않는 이벤트 타입입니다.');
     });
   });
 });

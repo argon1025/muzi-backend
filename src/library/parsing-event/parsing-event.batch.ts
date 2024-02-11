@@ -24,7 +24,7 @@ export class ParsingEventWorkerBatch {
     // SECTION: 이벤트 생성
     await this.parsingEventService.createEvent({
       eventType: IParsingEventService.EventType.DINNER_QUEEN,
-      eventMessage: ' ',
+      eventMessage: { requestType: 'ALL' },
     });
   }
 
@@ -48,7 +48,10 @@ export class ParsingEventWorkerBatch {
     let eventResult: IDinnerQueenParser.RunWorkerResult = { total: 0, successCount: 0, failedCount: 0 };
     switch (event.eventType) {
       case IParsingEventService.EventType.DINNER_QUEEN: {
-        eventResult = await this.dinnerQueenParser.runWorker({ eventId: event.id });
+        eventResult = await this.dinnerQueenParser.runWorker({
+          eventId: event.id,
+          ...(event?.eventMessage?.targetId && { postIdList: [event.eventMessage.targetId] }),
+        });
         break;
       }
       default: {
