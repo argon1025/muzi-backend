@@ -158,7 +158,7 @@ export class CampaignService implements ICampaignService.Base {
    */
   async createUpdateRequestEvent(options: ICampaignService.CreateUpdateRequestEventOptions): Promise<void> {
     // 존재하는 캠페인인지 확인
-    const campaign = await this.prismaService.campaign.findFirst({ where: { id: options.id } });
+    const campaign = await this.prismaService.campaign.findFirst({ where: { id: options.id, deletedAt: null } });
     if (!campaign) {
       throw new NotFoundException(ERROR_CODE.CAMPAIGN_NOT_FOUND);
     }
