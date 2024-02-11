@@ -24,6 +24,11 @@ export const ERROR_CODE = dynamicRecord({
     message: '토큰이 유효하지 않습니다.',
     httpStatus: HttpStatus.UNAUTHORIZED,
   },
+  INVALID_DATA: {
+    code: 'INVALID_DATA',
+    message: '잘못된 데이터입니다.',
+    httpStatus: HttpStatus.BAD_REQUEST,
+  },
 
   /**
    * Auth
