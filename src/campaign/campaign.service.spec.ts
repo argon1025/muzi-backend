@@ -682,6 +682,37 @@ describe('CampaignService', () => {
       await expect(result).rejects.toThrow(new NotFoundException(ERROR_CODE.CAMPAIGN_NOT_FOUND));
     });
 
+    it('삭제된 캠페인인 경우 에러를 반환한다.', async () => {
+      // given
+      await prismaService.campaign.create({
+        data: {
+          id: 'campaign1',
+          duplicateId: 'duplicateId1',
+          resourceProvider: '지원하지 않는 타입',
+          originUrl: 'originUrl1',
+          title: 'title1',
+          category: 'category1',
+          targetPlatforms: 'targetPlatforms1',
+          thumbnail: 'thumbnail1',
+          address: 'address1',
+          recruitCount: 1,
+          applyCount: 1,
+          drawAt: null,
+          endedAt: null,
+          startedAt: null,
+          deletedAt: new Date(),
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+
+      // when
+      const result = campaignService.createUpdateRequestEvent({ id: 'campaign1' });
+
+      // then
+      await expect(result).rejects.toThrow(new NotFoundException(ERROR_CODE.CAMPAIGN_NOT_FOUND));
+    });
+
     it('업데이트 요청이 지원되지 않는 캠페인 타입인 경우 에러를 반환한다.', async () => {
       // given
       await prismaService.campaign.create({
