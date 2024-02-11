@@ -10,13 +10,14 @@ export class ParsingEventService implements IParsingEventService.Base {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createEvent(options: IParsingEventService.CreateEventOptions): Promise<void> {
+    const eventMessage = JSON.stringify(options.eventMessage);
     await this.prismaService.$transaction(
       async (prisma) => {
         // 해당 이벤트 타입을 가진 대기, 미처리 이벤트가 있는지 확인
         const existEvent = await prisma.parsingEvent.findFirst({
           where: {
             eventType: options.eventType,
-            eventMessage: options.eventMessage,
+            eventMessage,
             eventStatus: { in: [IParsingEventService.EventStatus.WAIT, IParsingEventService.EventStatus.PROCESSING] },
           },
         });
@@ -27,7 +28,7 @@ export class ParsingEventService implements IParsingEventService.Base {
           await prisma.parsingEvent.create({
             data: {
               eventType: options.eventType,
-              eventMessage: options.eventMessage,
+              eventMessage,
               eventStatus: IParsingEventService.EventStatus.WAIT,
             },
           });
@@ -63,7 +64,7 @@ export class ParsingEventService implements IParsingEventService.Base {
       return {
         id: eventInfo.id,
         eventType: eventInfo.eventType as IParsingEventService.EventType,
-        eventMessage: eventInfo.eventMessage,
+        eventMessage: JSON.parse(eventInfo.eventMessage) as IParsingEventService.EventPayload,
         createdAt: eventInfo.createdAt,
       };
     });
@@ -100,6 +101,15 @@ export class ParsingEventService implements IParsingEventService.Base {
       });
     } catch (error) {
       throw new ParsingEventException('이벤트 로그 생성에 실패하였습니다.', error);
+    }
+  }
+
+  getEventTypeFromText(eventType: string): IParsingEventService.EventType {
+    switch (eventType) {
+      case 'DINNER_QUEEN':
+        return IParsingEventService.EventType.DINNER_QUEEN;
+      default:
+        throw new ParsingEventException('존재하지 않는 이벤트 타입입니다.', { eventType });
     }
   }
 }

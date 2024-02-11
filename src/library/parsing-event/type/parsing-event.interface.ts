@@ -12,13 +12,15 @@ export namespace IParsingEventService {
     modifyEventStatus(options: ModifyEventStatusOptions): Promise<void>;
     /** 이벤트 처리 로그 생성 */
     createLog(options: CreateLogOptions): Promise<void>;
+    /** string을 이벤트 타입으로 변환 */
+    getEventTypeFromText(eventType: string): EventType;
   }
 
   export interface CreateEventOptions {
     /** 이벤트 타입 */
     eventType: EventType;
     /** 이벤트 메시지 */
-    eventMessage: string;
+    eventMessage: EventPayload;
   }
 
   export interface GetEventOptions {
@@ -32,7 +34,7 @@ export namespace IParsingEventService {
     /** 이벤트 타입 */
     eventType: EventType;
     /** 이벤트 메시지 */
-    eventMessage: string;
+    eventMessage: EventPayload;
     /** 이벤트 생성일 */
     createdAt: Date;
   }
@@ -65,5 +67,12 @@ export namespace IParsingEventService {
   export enum EventType {
     /** 디너의 여왕 */
     DINNER_QUEEN = 'DINNER_QUEEN',
+  }
+
+  export interface EventPayload {
+    /** 요청 타입 (전체 스캔, 특정 게시글 업데이트) */
+    requestType: 'ALL' | 'UPDATE';
+    /** 요청 타입이 업데이트인 경우에만 필수 */
+    targetId?: string;
   }
 }
