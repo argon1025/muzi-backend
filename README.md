@@ -10,7 +10,7 @@
     서로 다른 서비스의 맛집, 제품 체험단 공고 통합 조회 제공
     <br />
     <br />
-    <a href="http://muzi-alb-1034178250.ap-northeast-2.elb.amazonaws.com:8080/api">View Swagger Doc</a>
+    <a href="https://backend.mu-zi.net/api">View Swagger Doc</a>
     ·
     <a href="https://github.com/argon1025/muzi-backend/issues">Report Bug</a>
     ·
