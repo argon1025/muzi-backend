@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Inject, UseGuards } from '@nestjs/common';
 
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
@@ -23,5 +23,12 @@ export class UserController {
   @GenerateSwaggerDocumentByErrorCode([ERROR_CODE.USER_NOT_FOUND])
   async getUser(@UserInfo() user: IJwtUtilityService.TokenPayload) {
     return plainToInstance(GetUserByIdResponse, await this.userService.getUserById(user.userId));
+  }
+
+  @Delete()
+  @ApiOperation({ summary: '회원 탈퇴' })
+  @GenerateSwaggerDocumentByErrorCode([ERROR_CODE.USER_NOT_FOUND])
+  async deleteUser(@UserInfo() user: IJwtUtilityService.TokenPayload) {
+    await this.userService.deleteUserById({ userId: user.userId });
   }
 }
