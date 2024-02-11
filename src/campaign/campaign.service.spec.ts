@@ -1,19 +1,34 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
+import { Test } from '@nestjs/testing';
 import { CampaignService } from './campaign.service';
 import { PrismaService } from '../library/prisma/prisma.service';
 import { ERROR_CODE } from '../library/exception/error.constant';
+import { IParsingEventService, PARSING_EVENT_SERVICE } from '../library/parsing-event/type/parsing-event.interface';
+import { ParsingEventService } from '../library/parsing-event/parsing-event.service';
 
 describe('CampaignService', () => {
   let campaignService: CampaignService;
-  const prismaService: PrismaService = new PrismaService();
+  let parsingEventService: ParsingEventService;
+  let prismaService: PrismaService;
 
   beforeAll(async () => {
-    campaignService = new CampaignService(prismaService);
+    const moduleRef = await Test.createTestingModule({
+      providers: [CampaignService, PrismaService, { provide: PARSING_EVENT_SERVICE, useClass: ParsingEventService }],
+    }).compile();
+
+    campaignService = moduleRef.get<CampaignService>(CampaignService);
+    prismaService = moduleRef.get<PrismaService>(PrismaService);
+    parsingEventService = moduleRef.get<ParsingEventService>(PARSING_EVENT_SERVICE);
   });
 
   afterEach(async () => {
-    await prismaService.$transaction([prismaService.userCampaign.deleteMany(), prismaService.campaign.deleteMany(), prismaService.user.deleteMany()]);
+    await prismaService.$transaction([
+      prismaService.userCampaign.deleteMany(),
+      prismaService.campaign.deleteMany(),
+      prismaService.user.deleteMany(),
+      prismaService.parsingEvent.deleteMany(),
+    ]);
     jest.restoreAllMocks();
   });
 
@@ -652,6 +667,191 @@ describe('CampaignService', () => {
       // then
       const userCampaign = await prismaService.userCampaign.findMany({ where: { deletedAt: null } });
       expect(userCampaign).toHaveLength(0);
+    });
+  });
+
+  describe('createUpdateRequestEvent', () => {
+    it('존재하지 않는 캠페인인 경우 에러를 반환한다.', async () => {
+      // given
+      // 캠페인 데이터를 설정하지 않는다
+
+      // when
+      const result = campaignService.createUpdateRequestEvent({ id: '1' });
+
+      // then
+      await expect(result).rejects.toThrow(new NotFoundException(ERROR_CODE.CAMPAIGN_NOT_FOUND));
+    });
+
+    it('업데이트 요청이 지원되지 않는 캠페인 타입인 경우 에러를 반환한다.', async () => {
+      // given
+      await prismaService.campaign.create({
+        data: {
+          id: 'campaign1',
+          duplicateId: 'duplicateId1',
+          resourceProvider: '지원하지 않는 타입',
+          originUrl: 'originUrl1',
+          title: 'title1',
+          category: 'category1',
+          targetPlatforms: 'targetPlatforms1',
+          thumbnail: 'thumbnail1',
+          address: 'address1',
+          recruitCount: 1,
+          applyCount: 1,
+          drawAt: null,
+          endedAt: null,
+          startedAt: null,
+          deletedAt: null,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+
+      // when
+      const result = campaignService.createUpdateRequestEvent({ id: 'campaign1' });
+
+      // then
+      await expect(result).rejects.toThrow(new BadRequestException(ERROR_CODE.CAMPAIGN_TYPE_NOT_ALLOWED));
+    });
+
+    it('캠페인이 종료된 경우 에러를 반환한다.', async () => {
+      // given
+      jest.useFakeTimers({ advanceTimers: true });
+      await prismaService.campaign.create({
+        data: {
+          id: 'campaign1',
+          duplicateId: 'DINNER_QUEEN_1',
+          resourceProvider: 'DINNER_QUEEN',
+          originUrl: 'originUrl1',
+          title: 'title1',
+          category: 'category1',
+          targetPlatforms: 'targetPlatforms1',
+          thumbnail: 'thumbnail1',
+          address: 'address1',
+          recruitCount: 1,
+          applyCount: 1,
+          drawAt: null,
+          endedAt: DateTime.fromISO('2023-01-01T01:00:00Z').toJSDate(),
+          startedAt: null,
+          deletedAt: null,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+
+      // when
+      jest.setSystemTime(DateTime.fromISO('2023-01-02T01:00:00Z').toJSDate());
+      const result = campaignService.createUpdateRequestEvent({ id: 'campaign1' });
+
+      // then
+      await expect(result).rejects.toThrow(new BadRequestException(ERROR_CODE.CAMPAIGN_ALREADY_ENDED));
+    });
+
+    it('캠페인 종료날짜가 null인 경우', async () => {
+      // given
+      await prismaService.campaign.create({
+        data: {
+          id: 'campaign1',
+          duplicateId: 'DINNER_QUEEN_1',
+          resourceProvider: 'DINNER_QUEEN',
+          originUrl: 'originUrl1',
+          title: 'title1',
+          category: 'category1',
+          targetPlatforms: 'targetPlatforms1',
+          thumbnail: 'thumbnail1',
+          address: 'address1',
+          recruitCount: 1,
+          applyCount: 1,
+          drawAt: null,
+          endedAt: null,
+          startedAt: null,
+          deletedAt: null,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+
+      // when
+      const result = await campaignService.createUpdateRequestEvent({ id: 'campaign1' });
+
+      // then
+      expect(result).toBeUndefined();
+      const eventList = await prismaService.parsingEvent.findMany();
+      expect(eventList.length).toBe(1);
+    });
+
+    it('업데이트 요청이 가능한 캠에인인 경우 이벤트를 생성한다.', async () => {
+      // given
+      // 캠페인 구성
+      jest.useFakeTimers({ advanceTimers: true });
+      await prismaService.campaign.create({
+        data: {
+          id: 'campaign1',
+          duplicateId: 'DINNER_QUEEN_1',
+          resourceProvider: 'DINNER_QUEEN',
+          originUrl: 'originUrl1',
+          title: 'title1',
+          category: 'category1',
+          targetPlatforms: 'targetPlatforms1',
+          thumbnail: 'thumbnail1',
+          address: 'address1',
+          recruitCount: 1,
+          applyCount: 1,
+          drawAt: null,
+          endedAt: DateTime.fromISO('2023-01-02T00:00:00Z').toJSDate(),
+          startedAt: null,
+          deletedAt: null,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+
+      // when
+      jest.setSystemTime(DateTime.fromISO('2023-01-01T00:00:00Z').toJSDate());
+      const result = await campaignService.createUpdateRequestEvent({ id: 'campaign1' });
+
+      // then
+      expect(result).toBeUndefined();
+      const eventList = await prismaService.parsingEvent.findMany();
+      expect(eventList.length).toBe(1);
+    });
+
+    it('이미 생성되어 대기중이거나 처리중인 요청이 있는경우 추가 작업을 하지않고 종료한다.', async () => {
+      // given
+      // 캠페인 구성
+      await prismaService.campaign.create({
+        data: {
+          id: 'campaign1',
+          duplicateId: 'DINNER_QUEEN_1',
+          resourceProvider: 'DINNER_QUEEN',
+          originUrl: 'originUrl1',
+          title: 'title1',
+          category: 'category1',
+          targetPlatforms: 'targetPlatforms1',
+          thumbnail: 'thumbnail1',
+          address: 'address1',
+          recruitCount: 1,
+          applyCount: 1,
+          drawAt: null,
+          endedAt: null,
+          startedAt: null,
+          deletedAt: null,
+          updatedAt: new Date(),
+          createdAt: new Date(),
+        },
+      });
+      // 구성된 캠페인의 이벤트 생성
+      await parsingEventService.createEvent({
+        eventType: IParsingEventService.EventType.DINNER_QUEEN,
+        eventMessage: { requestType: 'UPDATE', targetId: '1' },
+      });
+
+      // when
+      const result = await campaignService.createUpdateRequestEvent({ id: 'campaign1' });
+
+      // then
+      expect(result).toBeUndefined();
+      const eventList = await prismaService.parsingEvent.findMany();
+      expect(eventList.length).toBe(1);
     });
   });
 });

@@ -13,6 +13,8 @@ export namespace ICampaignService {
     createUserCampaign(options: CreateUserCampaignOptions): Promise<void>;
     /** 사용자별 캠페인 즐겨찾기 삭제 */
     deleteUserCampaign(options: DeleteUserCampaignOptions): Promise<void>;
+    /** 특정 캠페인 업데이트 요청 이벤트 생성 */
+    createUpdateRequestEvent(options: CreateUpdateRequestEventOptions): Promise<void>;
   }
 
   export interface Campaign {
@@ -92,5 +94,10 @@ export namespace ICampaignService {
     id: string;
     /** 사용자 아이디 */
     userId: string;
+  }
+
+  export interface CreateUpdateRequestEventOptions {
+    /** 캠페인 아이디 */
+    id: string;
   }
 }

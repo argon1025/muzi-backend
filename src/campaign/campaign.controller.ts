@@ -28,6 +28,19 @@ export class CampaignController {
     return plainToInstance(GetCampaignListResponse, await this.campaignService.findMany(options));
   }
 
+  @Post('update-async/:id')
+  @ApiOperation({ summary: '캠페인 업데이트 요청', description: '캠페인 업데이트 요청을 생성합니다. 해당 요청은 비동기로 처리됩니다.' })
+  @ApiCookieAuth()
+  @GenerateSwaggerDocumentByErrorCode([
+    ERROR_CODE.CAMPAIGN_NOT_FOUND,
+    ERROR_CODE.CAMPAIGN_TYPE_NOT_ALLOWED,
+    ERROR_CODE.CAMPAIGN_ALREADY_ENDED,
+    ERROR_CODE.CAMPAIGN_UPDATE_REQUEST_FAILED,
+  ])
+  async updateCampaign(@Query('id') id: string) {
+    await this.campaignService.createUpdateRequestEvent({ id });
+  }
+
   @Get('favorite')
   @ApiOperation({ summary: '회원별 캠페인 즐겨찾기 목록 조회' })
   @ApiCookieAuth()
