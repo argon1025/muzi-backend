@@ -68,10 +68,11 @@ describe('UserService', () => {
       await prismaService.user.createMany({ data: dataBaseData });
 
       // when
-      const result = await userService.deleteUserById({ userId: 'user1' });
+      await userService.deleteUserById({ userId: 'user1' });
 
       // then
-      expect(result).toBeUndefined();
+      const user = await prismaService.user.findFirst({ where: { id: 'user1', deletedAt: null } });
+      expect(user).toBeNull();
     });
 
     it('이미 삭제된 유저를 삭제하려고 시도한 경우 NotFoundException을 반환한다.', async () => {
