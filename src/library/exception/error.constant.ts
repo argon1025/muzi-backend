@@ -71,6 +71,21 @@ export const ERROR_CODE = dynamicRecord({
     message: '권한이 없습니다.',
     httpStatus: HttpStatus.FORBIDDEN,
   },
+  CAMPAIGN_TYPE_NOT_ALLOWED: {
+    code: 'CAMPAIGN_TYPE_NOT_ALLOWED',
+    message: '지원하지 않는 캠페인 타입입니다.',
+    httpStatus: HttpStatus.BAD_REQUEST,
+  },
+  CAMPAIGN_UPDATE_REQUEST_FAILED: {
+    code: 'CAMPAIGN_UPDATE_REQUEST_FAILED',
+    message: '업데이트 요청에 실패했습니다.',
+    httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
+  CAMPAIGN_ALREADY_ENDED: {
+    code: 'CAMPAIGN_ALREADY_ENDED',
+    message: '이미 종료된 캠페인입니다 업데이트 요청에 실패했습니다.',
+    httpStatus: HttpStatus.BAD_REQUEST,
+  },
 });
 
 // 스웨거 Exception Description을 위한 데코레이터
