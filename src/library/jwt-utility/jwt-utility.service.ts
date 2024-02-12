@@ -22,9 +22,9 @@ export class JwtUtilityService implements IJwtUtilityService.Base {
 
   private readonly COOKIE_DOMAIN = this.configService.getOrThrow<string>('COOKIE_DOMAIN');
 
-  private readonly REFRESH_TOKEN_EXPIRATION_TIME = this.configService.getOrThrow<number>(
-    'REFRESH_TOKEN_EXPIRATION_TIME',
-  );
+  private readonly REFRESH_TOKEN_EXPIRATION_TIME = this.configService.getOrThrow<number>('REFRESH_TOKEN_EXPIRATION_TIME');
+
+  private readonly COOKIE_SAME_SITE = this.configService.getOrThrow<string>('COOKIE_SAME_SITE');
 
   constructor(
     private readonly configService: ConfigService,
@@ -37,6 +37,7 @@ export class JwtUtilityService implements IJwtUtilityService.Base {
       path: this.COOKIE_PATH,
       httpOnly: this.IS_HTTP_ONLY_COOKIE,
       secure: this.IS_SECURE_COOKIE,
+      sameSite: this.COOKIE_SAME_SITE,
     };
   }
 
@@ -47,6 +48,7 @@ export class JwtUtilityService implements IJwtUtilityService.Base {
       httpOnly: this.IS_HTTP_ONLY_COOKIE,
       secure: this.IS_SECURE_COOKIE,
       maxAge: this.REFRESH_TOKEN_EXPIRATION_TIME,
+      sameSite: this.COOKIE_SAME_SITE,
     };
   }
 

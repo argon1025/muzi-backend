@@ -35,5 +35,6 @@ export namespace IJwtUtilityService {
     httpOnly: boolean;
     secure: boolean;
     maxAge?: number;
+    sameSite?: string;
   }
 }

@@ -11,6 +11,11 @@ async function bootstrap() {
 
   const servicePort = configService.getOrThrow<number>('SERVICE_PORT');
 
+  app.enableCors({
+    credentials: true,
+    origin: process.env.CORS_ALLOW_ORIGIN.split(','),
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Muzi API')
     .setDescription('무지 백엔드 서비스')
