@@ -24,7 +24,7 @@ export class JwtUtilityService implements IJwtUtilityService.Base {
 
   private readonly REFRESH_TOKEN_EXPIRATION_TIME = this.configService.getOrThrow<number>('REFRESH_TOKEN_EXPIRATION_TIME');
 
-  private readonly COOKIE_SAME_SITE = this.configService.getOrThrow<string>('COOKIE_SAME_SITE');
+  private readonly COOKIE_SAME_SITE = this.configService.getOrThrow<boolean | 'lax' | 'strict' | 'none'>('COOKIE_SAME_SITE');
 
   constructor(
     private readonly configService: ConfigService,
