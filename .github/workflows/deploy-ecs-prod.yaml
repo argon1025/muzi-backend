@@ -22,8 +22,10 @@ jobs:
           echo "JWT_REFRESH_TOKEN_EXPIRES_IN=${{ secrets.JWT_REFRESH_TOKEN_EXPIRES_IN }}" >> ./environments/.env.prod
           echo "IS_HTTP_ONLY_COOKIE=${{ vars.IS_HTTP_ONLY_COOKIE }}" >> ./environments/.env.prod
           echo "IS_SECURE_COOKIE=${{ vars.IS_SECURE_COOKIE }}" >> ./environments/.env.prod
-          echo "COOKIE_PATH=${{ secrets.COOKIE_PATH }}" >> ./environments/.env.prod
-          echo "COOKIE_DOMAIN=${{ secrets.COOKIE_DOMAIN }}" >> ./environments/.env.prod
+          echo "COOKIE_PATH=${{ vars.COOKIE_PATH }}" >> ./environments/.env.prod
+          echo "COOKIE_DOMAIN=${{ vars.COOKIE_DOMAIN }}" >> ./environments/.env.prod
+          echo "COOKIE_SAME_SITE=${{ vars.COOKIE_SAME_SITE }}" >> ./environments/.env.prod
+          echo "CORS_ALLOW_ORIGIN=${{ vars.CORS_ALLOW_ORIGIN }}" >> ./environments/.env.prod
           echo "REFRESH_TOKEN_EXPIRATION_TIME=${{ secrets.REFRESH_TOKEN_EXPIRATION_TIME }}" >> ./environments/.env.prod
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> ./environments/.env.prod
           echo 'KAKAO_CLIENT_SECRET="${{ secrets.KAKAO_CLIENT_SECRET }}"' >> ./environments/.env.prod
