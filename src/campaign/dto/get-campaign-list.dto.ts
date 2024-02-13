@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import { ICampaignService } from '../type/campaign.service.interface';
 
 export class GetCampaignListRequest {
   @IsString()
@@ -33,6 +34,15 @@ export class GetCampaignListRequest {
   @ApiProperty({ description: '페이지', default: '1', type: 'number' })
   @Transform(({ value }) => Number(value))
   page = 1;
+
+  @IsEnum(ICampaignService.FindManyOrderByOption)
+  @IsOptional()
+  @ApiProperty({
+    description: '정렬 방식',
+    enum: ICampaignService.FindManyOrderByOption,
+    default: ICampaignService.FindManyOrderByOption.ENDED_AT_ASC,
+  })
+  orderBy = ICampaignService.FindManyOrderByOption.ENDED_AT_ASC;
 
   @IsNumber()
   @IsOptional()

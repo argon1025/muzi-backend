@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { DateTime } from 'luxon';
+import { Prisma } from '@prisma/client';
 import { ICampaignService } from './type/campaign.service.interface';
 import { ERROR_CODE } from '../library/exception/error.constant';
 import { PrismaService } from '../library/prisma/prisma.service';
@@ -12,9 +13,7 @@ export class CampaignService implements ICampaignService.Base {
     private readonly prismaService: PrismaService,
     @Inject(PARSING_EVENT_SERVICE)
     private readonly parsingEventService: IParsingEventService.Base,
-  ) {
-    this.findMany({ size: 10, page: 1 });
-  }
+  ) {}
 
   /**
    * 전체 캠페인 목록을 조회합니다.
@@ -42,9 +41,25 @@ export class CampaignService implements ICampaignService.Base {
       deletedAt: null,
     };
 
+    let orderByQuery = [];
+    switch (options.orderBy) {
+      // 마감 임박순
+      case ICampaignService.FindManyOrderByOption.ENDED_AT_ASC: {
+        orderByQuery = [{ endedAt: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.desc }];
+        break;
+      }
+      // 신청 시작순
+      case ICampaignService.FindManyOrderByOption.STARTED_AT_ASC: {
+        orderByQuery = [{ startedAt: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.desc }];
+        break;
+      }
+      default:
+        orderByQuery = [{ createdAt: Prisma.SortOrder.desc }];
+    }
+
     const list = await this.prismaService.campaign.findMany({
       where: whereQuery,
-      orderBy: { endedAt: 'desc' },
+      orderBy: orderByQuery,
       take: size,
       skip: size * (page - 1),
     });
@@ -76,9 +91,8 @@ export class CampaignService implements ICampaignService.Base {
       skip: size * (page - 1),
       take: size,
     };
-    const list = await this.prismaService.userCampaign.findMany(queryOption);
+    const list = await this.prismaService.userCampaign.findMany({ ...queryOption });
     const total = await this.prismaService.userCampaign.count({ where: queryOption.where });
-
     return {
       list,
       total,

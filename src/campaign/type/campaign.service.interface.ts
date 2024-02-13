@@ -59,8 +59,17 @@ export namespace ICampaignService {
     category?: string;
     /** 응모 가능한 캠페인만 검색 */
     hasAvailable?: boolean;
+    /** 정렬 방식 */
+    orderBy?: FindManyOrderByOption;
     size: number;
     page: number;
+  }
+
+  export enum FindManyOrderByOption {
+    /** 마감 임박순 (endedAt ASC(오름차순)) */
+    ENDED_AT_ASC = 'ENDED_AT_ASC',
+    /** 신청 시작순 (startedAt ASC(오름차순)) */
+    STARTED_AT_ASC = 'STARTED_AT_ASC',
   }
 
   export interface FindManyResult {
