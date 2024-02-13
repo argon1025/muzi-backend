@@ -6,6 +6,7 @@ import { PrismaService } from '../library/prisma/prisma.service';
 import { ERROR_CODE } from '../library/exception/error.constant';
 import { IParsingEventService, PARSING_EVENT_SERVICE } from '../library/parsing-event/type/parsing-event.interface';
 import { ParsingEventService } from '../library/parsing-event/parsing-event.service';
+import { ICampaignService } from './type/campaign.service.interface';
 
 describe('CampaignService', () => {
   let campaignService: CampaignService;
@@ -292,6 +293,155 @@ describe('CampaignService', () => {
 
       // then
       expect(result).toEqual({ list: [], total: 0 });
+    });
+
+    it('마감일 임박순 정렬을 요청했을 경우', async () => {
+      // given
+      // 마감일은 동일하나 등록일이 다른 케이스, 마감일이 다른 케이스 데이터 추가
+      await prismaService.campaign.createMany({
+        data: [
+          {
+            id: 'campaign1',
+            duplicateId: 'duplicateId1',
+            resourceProvider: 'resourceProvider1',
+            originUrl: 'originUrl1',
+            title: 'title1',
+            category: 'category1',
+            targetPlatforms: 'targetPlatforms1',
+            thumbnail: 'thumbnail1',
+            address: 'address1',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            endedAt: DateTime.fromISO('2023-01-04T00:00:00Z').toJSDate(),
+            startedAt: null,
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: DateTime.fromISO('2023-01-04T00:00:00Z').toJSDate(),
+          },
+          {
+            id: 'campaign2',
+            duplicateId: 'duplicateId2',
+            resourceProvider: 'resourceProvider2',
+            originUrl: 'originUrl2',
+            title: 'title2',
+            category: 'category2',
+            targetPlatforms: 'targetPlatforms2',
+            thumbnail: 'thumbnail2',
+            address: 'address2',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            endedAt: DateTime.fromISO('2023-01-04T00:00:00Z').toJSDate(),
+            startedAt: null,
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: DateTime.fromISO('2023-01-05T00:00:00Z').toJSDate(),
+          },
+          {
+            id: 'campaign3',
+            duplicateId: 'duplicateId3',
+            resourceProvider: 'resourceProvider3',
+            originUrl: 'originUrl3',
+            title: 'title3',
+            category: 'category3',
+            targetPlatforms: 'targetPlatforms3',
+            thumbnail: 'thumbnail3',
+            address: 'address3',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            endedAt: DateTime.fromISO('2023-01-03T00:00:00Z').toJSDate(),
+            startedAt: null,
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: DateTime.fromISO('2023-01-05T00:00:00Z').toJSDate(),
+          },
+        ],
+      });
+
+      // when
+      const result = await campaignService.findMany({ page: 1, size: 10, orderBy: ICampaignService.FindManyOrderByOption.ENDED_AT_ASC });
+
+      // then
+      expect(result.total).toBe(3);
+      expect(result.list[0].id).toBe('campaign3');
+      expect(result.list[1].id).toBe('campaign2');
+      expect(result.list[2].id).toBe('campaign1');
+    });
+    it('신청일 임박순 정렬을 요청했을 경우', async () => {
+      // given
+      // 신청일은 동일하나 등록일이 다른 케이스, 신청일이 다른 케이스 데이터 추가
+      await prismaService.campaign.createMany({
+        data: [
+          {
+            id: 'campaign1',
+            duplicateId: 'duplicateId1',
+            resourceProvider: 'resourceProvider1',
+            originUrl: 'originUrl1',
+            title: 'title1',
+            category: 'category1',
+            targetPlatforms: 'targetPlatforms1',
+            thumbnail: 'thumbnail1',
+            address: 'address1',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            endedAt: null,
+            startedAt: DateTime.fromISO('2023-01-04T00:00:00Z').toJSDate(),
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: DateTime.fromISO('2023-01-04T00:00:00Z').toJSDate(),
+          },
+          {
+            id: 'campaign2',
+            duplicateId: 'duplicateId2',
+            resourceProvider: 'resourceProvider2',
+            originUrl: 'originUrl2',
+            title: 'title2',
+            category: 'category2',
+            targetPlatforms: 'targetPlatforms2',
+            thumbnail: 'thumbnail2',
+            address: 'address2',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            endedAt: null,
+            startedAt: DateTime.fromISO('2023-01-04T00:00:00Z').toJSDate(),
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: DateTime.fromISO('2023-01-05T00:00:00Z').toJSDate(),
+          },
+          {
+            id: 'campaign3',
+            duplicateId: 'duplicateId3',
+            resourceProvider: 'resourceProvider3',
+            originUrl: 'originUrl3',
+            title: 'title3',
+            category: 'category3',
+            targetPlatforms: 'targetPlatforms3',
+            thumbnail: 'thumbnail3',
+            address: 'address3',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            endedAt: null,
+            startedAt: DateTime.fromISO('2023-01-03T00:00:00Z').toJSDate(),
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: DateTime.fromISO('2023-01-05T00:00:00Z').toJSDate(),
+          },
+        ],
+      });
+
+      // when
+      const result = await campaignService.findMany({ page: 1, size: 10, orderBy: ICampaignService.FindManyOrderByOption.STARTED_AT_ASC });
+
+      // then
+      expect(result.total).toBe(3);
+      expect(result.list[0].id).toBe('campaign3');
+      expect(result.list[1].id).toBe('campaign2');
+      expect(result.list[2].id).toBe('campaign1');
     });
   });
 
