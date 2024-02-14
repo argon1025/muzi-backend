@@ -10,6 +10,8 @@
     서로 다른 서비스의 맛집, 제품 체험단 공고 통합 조회 제공
     <br />
     <br />
+    <a href="https://mu-zi.net">Go to Service</a>
+    ·
     <a href="https://backend.mu-zi.net/api">View Swagger Doc</a>
     ·
     <a href="https://github.com/argon1025/muzi-backend/issues">Report Bug</a>
@@ -60,7 +62,7 @@
 
 이슈 관리
 
-- `Github Projects`로 이슈를 생성 및 트래킹 합니다.
+- `Github Projects`로 이슈를 생성 및 트래킹 합니다. [링크](https://github.com/users/argon1025/projects/3/views/1)
 
 브랜치 정책
 
