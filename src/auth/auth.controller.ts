@@ -12,6 +12,7 @@ import { ERROR_CODE, GenerateSwaggerDocumentByErrorCode } from '../library/excep
 import { PostJoinWithUserIdRequest, PostJoinWithUserIdResponse } from './dto/post-join-with-user-id.dto';
 import { UserLoginRequest, UserLoginResponse } from './dto/user-login.dto';
 import { UserProvider } from './type/auth.type';
+import { NaverLoginRequest } from './dto/naver-login.dto';
 
 @Controller('auth')
 @ApiTags('- 회원 가입')
@@ -74,6 +75,26 @@ export class AuthController {
     const refreshToken = await this.jwtService.generateRefreshToken({
       userId: userInfo.id,
       provider: UserProvider.KAKAO,
+    });
+    response.cookie('refreshToken', refreshToken, this.jwtService.getRefreshTokenCookieOption());
+  }
+
+  @Get('naver')
+  @ApiOperation({ summary: '네이버 로그인', description: '네이버 로그인을 진행합니다.' })
+  @GenerateSwaggerDocumentByErrorCode([ERROR_CODE.GET_NAVER_TOKEN_FAILED])
+  async naverLogin(@Query() request: NaverLoginRequest, @Res({ passthrough: true }) response: Response) {
+    // 유저정보 조회
+    const userInfo = await this.authService.loginForNaver({ code: request.code, state: request.state });
+
+    // accessToken, refreshToken 토큰 발급
+    const accessToken = await this.jwtService.generateAccessToken({
+      userId: userInfo.id,
+      provider: UserProvider.NAVER,
+    });
+    response.cookie('accessToken', accessToken, this.jwtService.getAccessTokenCookieOption());
+    const refreshToken = await this.jwtService.generateRefreshToken({
+      userId: userInfo.id,
+      provider: UserProvider.NAVER,
     });
     response.cookie('refreshToken', refreshToken, this.jwtService.getRefreshTokenCookieOption());
   }
