@@ -38,6 +38,11 @@ export const ERROR_CODE = dynamicRecord({
     message: '카카오에서 사용자 정보를 로드하는데 실패 했습니다.',
     httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
   },
+  GET_NAVER_TOKEN_FAILED: {
+    code: 'GET_NAVER_TOKEN_FAILED',
+    message: '네이버에서 사용자 정보를 로드하는데 실패 했습니다.',
+    httpStatus: HttpStatus.INTERNAL_SERVER_ERROR,
+  },
 
   /**
    * User

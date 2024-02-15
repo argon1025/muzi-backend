@@ -23,6 +23,8 @@ model User {
   password  String?
   /// 카카오 키
   kakaoId   String?
+  /// 네이버 키
+  naverId   String?
   /// 별명
   nickname  String
   /// 이메일
