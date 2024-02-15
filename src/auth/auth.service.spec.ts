@@ -4,14 +4,16 @@ import { ERROR_CODE } from '../library/exception/error.constant';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../library/prisma/prisma.service';
 import { UserProvider } from './type/auth.type';
+import { INaverAuthDataSource } from '../data-source/naver-auth/type/naver-auth.data-source.interface';
 
 describe('AuthService', () => {
   let authService: AuthService;
   const prismaService = new PrismaService();
   const kakaoAuthDataSource = {} as any;
+  const naverAuthDataSource = {} as any;
 
   beforeEach(() => {
-    authService = new AuthService(kakaoAuthDataSource, prismaService);
+    authService = new AuthService(kakaoAuthDataSource, prismaService, naverAuthDataSource);
   });
 
   afterEach(async () => {
@@ -21,6 +23,73 @@ describe('AuthService', () => {
 
   afterAll(async () => {
     await prismaService.$disconnect();
+  });
+
+  describe('loginForKakao', () => {
+    it('유저 정보를 찾았을 경우 유저 정보를 리턴한다.', async () => {
+      // given
+      naverAuthDataSource.getToken = jest.fn().mockResolvedValue({}); // 카카오 액세스 토큰 발급 성공
+      const user: INaverAuthDataSource.GetUserInfoResult = {
+        id: 'id',
+        email: 'test@naver.com',
+        name: '이성록',
+        nickname: '성록',
+        gender: 'M',
+        birthday: '10-25',
+        profileImage: 'https://ssl.pstatic.net/static/pwe/address/img_profile.png',
+      };
+      naverAuthDataSource.getUserInfo = jest.fn().mockResolvedValue(user); // 카카오 유저 정보 조회 성공
+      await prismaService.user.create({ data: { provider: UserProvider.NAVER, naverId: user.id, nickname: user.nickname } });
+
+      // when
+      const result = await authService.loginForNaver({ code: 'code', state: 'state' });
+
+      // then
+      expect(result.naverId).toEqual('id');
+    });
+    it('유저 정보를 찾지 못했을 경우 새로 가입처리 후 유저정보를 반환한다.', async () => {
+      // given
+      naverAuthDataSource.getToken = jest.fn().mockResolvedValue({}); // 카카오 액세스 토큰 발급 성공
+      const user: INaverAuthDataSource.GetUserInfoResult = {
+        id: 'id',
+        email: 'test@naver.com',
+        name: '이성록',
+        nickname: '성록',
+        gender: 'M',
+        birthday: '10-25',
+        profileImage: 'https://ssl.pstatic.net/static/pwe/address/img_profile.png',
+      };
+      naverAuthDataSource.getUserInfo = jest.fn().mockResolvedValue(user); // 카카오 유저 정보 조회 성공
+
+      // when
+      const result = await authService.loginForNaver({ code: 'code', state: 'state' });
+
+      // then
+      expect(result.naverId).toEqual('id');
+    });
+    it('인가코드로부터 액세스 토큰을 받아오는데 실패했을 경우 에러를 던진다.', async () => {
+      // given
+      naverAuthDataSource.getToken = jest.fn().mockRejectedValue(new Error('error')); // 카카오 액세스 토큰 발급 실패
+      jest.spyOn(Logger, 'error').mockImplementation(() => {});
+
+      // when
+      const result = authService.loginForNaver({ code: 'code', state: 'state' });
+
+      // then
+      await expect(result).rejects.toEqual(new InternalServerErrorException(ERROR_CODE.GET_NAVER_TOKEN_FAILED));
+    });
+    it('액세스 토큰으로부터 유저정보를 받아오는데 실패했을 경우 에러를 던진다.', async () => {
+      // given
+      naverAuthDataSource.getToken = jest.fn().mockResolvedValue({}); // 카카오 액세스 토큰 발급 성공
+      naverAuthDataSource.getUserInfo = jest.fn().mockRejectedValue(new Error('error')); // 카카오 유저 정보 조회 실패
+      jest.spyOn(Logger, 'error').mockImplementation(() => {});
+
+      // when
+      const result = authService.loginForNaver({ code: 'code', state: 'state' });
+
+      // then
+      await expect(result).rejects.toEqual(new InternalServerErrorException(ERROR_CODE.GET_NAVER_TOKEN_FAILED));
+    });
   });
 
   describe('loginForKakao', () => {
