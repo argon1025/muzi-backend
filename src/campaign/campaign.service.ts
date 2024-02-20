@@ -19,7 +19,7 @@ export class CampaignService implements ICampaignService.Base {
    * 전체 캠페인 목록을 조회합니다.
    */
   async findMany(options: ICampaignService.FindManyOptions): Promise<ICampaignService.FindManyResult> {
-    const { title, address, category, hasAvailable, size, page } = options;
+    const { title, address, category, hasAvailable, resourceProvider, size, page } = options;
     const whereQuery = {
       title: {
         contains: title,
@@ -30,6 +30,7 @@ export class CampaignService implements ICampaignService.Base {
       category: {
         contains: category,
       },
+      ...(resourceProvider && { resourceProvider }),
       ...(hasAvailable && {
         startedAt: {
           lte: DateTime.utc().toJSDate(),

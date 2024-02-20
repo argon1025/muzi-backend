@@ -53,6 +53,8 @@ export namespace ICampaignService {
   export interface FindManyOptions {
     /** 캠페인 제목 */
     title?: string;
+    /** 캠페인 정보 제공자 */
+    resourceProvider?: string;
     /** 주소 */
     address?: string;
     /** 카테고리 */
@@ -108,5 +110,13 @@ export namespace ICampaignService {
   export interface CreateUpdateRequestEventOptions {
     /** 캠페인 아이디 */
     id: string;
+  }
+
+  /**
+   * 리소스 제공자
+   */
+  export enum ResourceProvider {
+    /** 디너의 여왕 */
+    DINNER_QUEEN = 'DINNER_QUEEN',
   }
 }
