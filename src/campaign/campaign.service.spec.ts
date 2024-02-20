@@ -204,6 +204,60 @@ describe('CampaignService', () => {
       expect(result.list[0].category).toBe('category1');
     });
 
+    it('특정 캠페인 정보 제공자를 검색 했을 경우', async () => {
+      // given
+      // 캠페인 데이터 등록
+      await prismaService.campaign.createMany({
+        data: [
+          {
+            id: 'campaign1',
+            duplicateId: 'duplicateId1',
+            resourceProvider: 'resourceProvider1',
+            originUrl: 'originUrl1',
+            title: 'title1',
+            category: 'category1',
+            targetPlatforms: 'targetPlatforms1',
+            thumbnail: 'thumbnail1',
+            address: 'address1',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            startedAt: null,
+            endedAt: null,
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: new Date(),
+          },
+          {
+            id: 'campaign2',
+            duplicateId: 'duplicateId2',
+            resourceProvider: 'resourceProvider12',
+            originUrl: 'originUrl1',
+            title: 'title1',
+            category: 'category1',
+            targetPlatforms: 'targetPlatforms1',
+            thumbnail: 'thumbnail1',
+            address: 'address1',
+            recruitCount: 1,
+            applyCount: 1,
+            drawAt: null,
+            startedAt: null,
+            endedAt: null,
+            deletedAt: null,
+            updatedAt: new Date(),
+            createdAt: new Date(),
+          },
+        ],
+      });
+
+      // when
+      const result = await campaignService.findMany({ resourceProvider: 'resourceProvider1', size: 10, page: 1 });
+
+      // then
+      expect(result.total).toBe(1);
+      expect(result.list[0].resourceProvider).toBe('resourceProvider1');
+    });
+
     it('신청 진행중인 캠페인을 검색했을 경우', async () => {
       // given
       jest.useFakeTimers({ advanceTimers: true });
