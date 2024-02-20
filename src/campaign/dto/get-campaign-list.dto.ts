@@ -16,6 +16,12 @@ export class GetCampaignListRequest {
   @ApiProperty({ description: '도시 검색', example: '서울' })
   address?: string;
 
+  @IsEnum(ICampaignService.ResourceProvider)
+  @IsNotEmpty()
+  @IsOptional()
+  @ApiProperty({ description: '리소스 제공자', example: 'DINNER_QUEEN', enum: ICampaignService.ResourceProvider })
+  resourceProvider?: ICampaignService.ResourceProvider;
+
   @IsString()
   @IsNotEmpty()
   @IsOptional()
