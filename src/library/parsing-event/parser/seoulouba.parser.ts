@@ -34,10 +34,10 @@ export class SeouloubaParser implements ISeouloubaParser.Base {
     if (taskList.length === 0) {
       try {
         // 브라우저 부하로 해당 작업은 동시에 실행하지 않는다
-        const visitCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=377');
-        const shippingCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=383');
-        const reporterCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=448');
-        const reviewCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=449');
+        const visitCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=377&qq=&q=&q1=&q2=&ar1=&ar2=&&sort=latest');
+        const shippingCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=383&qq=&q=&q1=&q2=&ar1=&ar2=&&sort=latest');
+        const reporterCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=448&qq=&q=&q1=&q2=&ar1=&ar2=&&sort=latest');
+        const reviewCategory = await this.getAllIdList('https://www.seoulouba.co.kr/campaign/?cat=449&qq=&q=&q1=&q2=&ar1=&ar2=&&sort=latest');
         // 중복 제거
         taskList.push(...Array.from(new Set([...visitCategory, ...shippingCategory, ...reporterCategory, ...reviewCategory])));
       } catch (error) {
