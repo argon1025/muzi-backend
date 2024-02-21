@@ -7,12 +7,15 @@ import { DinnerQueenParser } from './parser/dinner-queen.parser';
 import { ParsingEventWorkerBatch } from './parsing-event.batch';
 import { DINNER_QUEEN_PARSER } from './parser/type/dinner-queen.parser.interface';
 import { CustomLoggerModule } from '../custom-logger/custom-logger.module';
+import { SEOULOUBA_PARSER } from './parser/type/seoulouba.parser.interface';
+import { SeouloubaParser } from './parser/seoulouba.parser';
 
 @Module({
   imports: [HttpModule, PrismaModule, CustomLoggerModule],
   providers: [
     { provide: PARSING_EVENT_SERVICE, useClass: ParsingEventService },
     { provide: DINNER_QUEEN_PARSER, useClass: DinnerQueenParser },
+    { provide: SEOULOUBA_PARSER, useClass: SeouloubaParser },
     ParsingEventWorkerBatch,
   ],
   exports: [PARSING_EVENT_SERVICE],

@@ -67,6 +67,8 @@ export namespace IParsingEventService {
   export enum EventType {
     /** 디너의 여왕 */
     DINNER_QUEEN = 'DINNER_QUEEN',
+    /** 서울오빠 */
+    SEOUL_OUBA = 'SEOUL_OUBA',
   }
 
   export interface EventPayload {
