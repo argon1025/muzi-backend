@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { ParseEventLogger } from '../custom-logger/parse-event-logger/parse-event.logger';
 import { PARSING_EVENT_SERVICE, IParsingEventService } from './type/parsing-event.interface';
 import { DINNER_QUEEN_PARSER, IDinnerQueenParser } from './parser/type/dinner-queen.parser.interface';
+import { ISeouloubaParser, SEOULOUBA_PARSER } from './parser/type/seoulouba.parser.interface';
 
 @Injectable()
 export class ParsingEventWorkerBatch {
@@ -13,6 +14,8 @@ export class ParsingEventWorkerBatch {
     private readonly parsingEventService: IParsingEventService.Base,
     @Inject(DINNER_QUEEN_PARSER)
     private readonly dinnerQueenParser: IDinnerQueenParser.Base,
+    @Inject(SEOULOUBA_PARSER)
+    private readonly seouloubaParser: ISeouloubaParser.Base,
     private readonly logger: ParseEventLogger,
   ) {}
 
@@ -49,6 +52,13 @@ export class ParsingEventWorkerBatch {
     switch (event.eventType) {
       case IParsingEventService.EventType.DINNER_QUEEN: {
         eventResult = await this.dinnerQueenParser.runWorker({
+          eventId: event.id,
+          ...(event?.eventMessage?.targetId && { postIdList: [event.eventMessage.targetId] }),
+        });
+        break;
+      }
+      case IParsingEventService.EventType.SEOUL_OUBA: {
+        eventResult = await this.seouloubaParser.runWorker({
           eventId: event.id,
           ...(event?.eventMessage?.targetId && { postIdList: [event.eventMessage.targetId] }),
         });

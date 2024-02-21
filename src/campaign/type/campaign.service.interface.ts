@@ -118,5 +118,7 @@ export namespace ICampaignService {
   export enum ResourceProvider {
     /** 디너의 여왕 */
     DINNER_QUEEN = 'DINNER_QUEEN',
+    /** 서울 오빠 */
+    SEOUL_OUBA = 'SEOUL_OUBA',
   }
 }
